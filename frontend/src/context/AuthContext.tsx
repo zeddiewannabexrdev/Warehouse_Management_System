@@ -16,20 +16,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('wms_access_token'));
+  const [token, setToken] = useState<string | null>(sessionStorage.getItem('wms_access_token'));
   const [activeBranch, setActiveBranchState] = useState<string>(
-    localStorage.getItem('wms_active_branch') || 'ALL',
+    sessionStorage.getItem('wms_active_branch') || 'ALL',
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const setActiveBranch = (branch: string) => {
     setActiveBranchState(branch);
-    localStorage.setItem('wms_active_branch', branch);
+    sessionStorage.setItem('wms_active_branch', branch);
   };
 
   useEffect(() => {
+    localStorage.removeItem('wms_access_token');
+    localStorage.removeItem('wms_active_branch');
+
     async function loadCurrentUser() {
-      const storedToken = localStorage.getItem('wms_access_token');
+      const storedToken = sessionStorage.getItem('wms_access_token');
       if (!storedToken) {
         setIsLoading(false);
         return;
@@ -42,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setActiveBranch(currentUser.branch);
         }
       } catch {
-        localStorage.removeItem('wms_access_token');
+        sessionStorage.removeItem('wms_access_token');
         setToken(null);
         setUser(null);
       } finally {
@@ -55,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<void> => {
     const res = await api.post<LoginResponse>('/auth/login', { email, password });
-    localStorage.setItem('wms_access_token', res.accessToken);
+    sessionStorage.setItem('wms_access_token', res.accessToken);
     setToken(res.accessToken);
     setUser(res.user);
 
@@ -65,7 +68,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     api.post('/auth/logout').catch(() => {});
+    sessionStorage.removeItem('wms_access_token');
+    sessionStorage.removeItem('wms_active_branch');
     localStorage.removeItem('wms_access_token');
+    localStorage.removeItem('wms_active_branch');
     setToken(null);
     setUser(null);
   };

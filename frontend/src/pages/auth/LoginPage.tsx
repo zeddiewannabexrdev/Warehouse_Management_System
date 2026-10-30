@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Database, ShieldAlert, ArrowRight, CheckCircle2, Lock, Mail, Loader2 } from 'lucide-react';
@@ -9,9 +9,15 @@ export const LoginPage: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    sessionStorage.removeItem('wms_access_token');
+    sessionStorage.removeItem('wms_active_branch');
+    localStorage.removeItem('wms_access_token');
+    localStorage.removeItem('wms_active_branch');
+  }, []);
 
   const demoAccounts = [
     {
@@ -137,22 +143,10 @@ export const LoginPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-400">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-slate-700 bg-[#0a111c] text-brand-600 focus:ring-0"
-                />
-                Ghi nhớ phiên đăng nhập
-              </label>
-            </div>
-
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-brand-700 hover:bg-brand-600 disabled:bg-slate-800 disabled:text-slate-500 text-white font-medium py-2.5 px-4 rounded text-xs transition-colors flex items-center justify-center gap-2 shadow-sm mt-2"
+              className="w-full bg-brand-700 hover:bg-brand-600 disabled:bg-slate-800 disabled:text-slate-500 text-white font-medium py-2.5 px-4 rounded text-xs transition-colors flex items-center justify-center gap-2 shadow-sm mt-3"
             >
               {loading ? (
                 <>

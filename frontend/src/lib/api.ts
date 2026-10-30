@@ -18,7 +18,7 @@ interface RequestOptions extends RequestInit {
 
 export async function request<T = any>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, headers, ...restOptions } = options;
-  const token = localStorage.getItem('wms_access_token');
+  const token = sessionStorage.getItem('wms_access_token');
 
   let url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
