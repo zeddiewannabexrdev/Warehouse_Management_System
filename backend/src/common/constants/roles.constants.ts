@@ -1,0 +1,9 @@
+export enum UserRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  MANAGER_HN = 'MANAGER_HN',
+  MANAGER_HCM = 'MANAGER_HCM',
+  QC_INSPECTOR = 'QC_INSPECTOR',
+  AUDITOR = 'AUDITOR',
+}
+
+export const ROLES_KEY = 'roles';

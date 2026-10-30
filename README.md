@@ -14,7 +14,39 @@ Hệ thống tận dụng triệt để các thế mạnh cốt lõi của **Mon
 
 ---
 
-## 2. Danh mục Toàn diện 20 Collections (Chia theo 6 Phân hệ Nghiệp vụ)
+## 2. Kiến trúc 3-Tier Web Application (Nền tảng Web Base)
+
+Hệ thống được tổ chức theo kiến trúc 3 tầng chuẩn doanh nghiệp:
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER: REACT 18 + VITE                       │
+│  - TailwindCSS + Enterprise Design System (Deep Navy, Crisp Spacing, No AI) │
+│  - React Router, TanStack Query, Lucide React, Recharts                      │
+│  - Multi-Branch Context Switcher (HN - ZONE_HN, HCM - ZONE_HCM, ALL)         │
+│  - Real-time Cluster Observability, RBAC Session & Module Navigation         │
+└──────────────────────────────────────┬───────────────────────────────────────┘
+                                       │ HTTP / RESTful API (Port 5000)
+┌──────────────────────────────────────▼───────────────────────────────────────┐
+│                    APPLICATION LAYER: NESTJS BACKEND API                     │
+│  - Modular Architecture (Core, Health, Auth, Users, Roles, Branches, Dash)   │
+│  - Official MongoDB Native Driver (Direct Sessions, Transactions, Commands)  │
+│  - Multi-Branch RBAC Guards (Super Admin, Manager HN, Manager HCM, QC, Audit)│
+│  - Swagger / OpenAPI Documentation tại http://localhost:5000/docs            │
+└──────────────────────────────────────┬───────────────────────────────────────┘
+                                       │ Mongos Connection Pool (Port 27017)
+┌──────────────────────────────────────▼───────────────────────────────────────┐
+│              DATA LAYER: MONGODB 6.0 SHARDED CLUSTER (DOCKER)                │
+│  ├── Mongos Query Router  : Port 27017 (Cổng tiếp nhận & định tuyến)         │
+│  ├── Config Server        : Port 27019 (Metadata & Chunk locations)          │
+│  ├── Shard 1 (ZONE_HN)    : Port 27018 (Tổng kho Miền Bắc - Hà Nội)          │
+│  └── Shard 2 (ZONE_HCM)   : Port 27020 (Tổng kho Miền Nam - TP.HCM)          │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Danh mục Toàn diện 20 Collections (Chia theo 6 Phân hệ Nghiệp vụ)
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,74 +61,120 @@ Hệ thống tận dụng triệt để các thế mạnh cốt lõi của **Mon
 │ 4. Tồn kho & KCS    │ 5. Dự án & Cấp phát │ 6. Tài chính & Kiểm toán         │
 │  - inventory_stk ⭐ │  - material_requests│  - inventory_valuations (FIFO)   │
 │  - material_batches │  - projects_depts   │  - material_audit_logs (TTL)     │
-│  - stocktakes       │                     │                                  │
+│  - stocktakes       │  - users (RBAC)     │                                  │
 │  - quality_inspects │                     │                                  │
 └─────────────────────┴─────────────────────┴──────────────────────────────────┘
 ```
 
-### Chi tiết 20 Collections:
-1. `materials`: Danh mục vật tư toàn hệ thống, mã vật tư duy nhất, lược đồ đa hình lưu trữ thông số kỹ thuật (*Polymorphic Specifications*).
-2. `material_categories`: Nhóm phân loại vật tư (Cơ khí kết cấu, Thiết bị điện, Xi măng, Hóa chất sơn phủ) và quy định điều kiện bảo quản.
-3. `warehouses`: Danh mục các tổng kho theo chi nhánh vùng miền (Tổng kho Long Biên - HN, Tổng kho Cát Lái - HCM, Kho Hòa Cầm - ĐN).
-4. `storage_locations`: Quản lý chi tiết vị trí lưu trữ trong kho (Dãy kệ - Aisle, Tầng kệ - Rack, Ngăn chứa - Bin, Tải trọng tối đa).
-5. `suppliers`: Hồ sơ nhà cung cấp chiến lược (Hòa Phát, CADIVI, VICEM, Jotun), mã số thuế, đánh giá độ tin cậy.
-6. `purchase_orders`: Đơn đặt mua vật tư từ nhà cung cấp, tiến độ giao hàng và phê duyệt ngân sách.
-7. `supplier_contracts`: Hợp đồng nguyên tắc cung ứng vật tư dài hạn, điều khoản thanh toán và hạn mức bảo lãnh.
-8. `supplier_evaluations`: Đánh giá chất lượng định kỳ nhà cung cấp theo tiêu chuẩn SLA (Chất lượng vật tư, Tỷ lệ giao đúng hạn, Giá cả).
-9. `goods_receipts` ⭐: **Phiếu Nhập kho (Sharded Collection)**: Ghi nhận vật tư nhập về kho kèm số lô, đơn giá, kiểm định nghiệm thu.
-10. `goods_issues` ⭐: **Phiếu Xuất kho (Sharded Collection)**: Ghi nhận vật tư xuất cấp phát phục vụ thi công dự án, công trình hoặc phân xưởng.
-11. `stock_transfers`: Phiếu điều phối luân chuyển vật tư liên kho giữa Tổng kho Miền Bắc và Miền Nam.
-12. `material_returns`: Phiếu thu hồi vật tư thừa hoặc vật tư không đúng quy cách từ công trường hoàn trả về kho.
-13. `inventory_stocks` ⭐: **Tồn kho vật tư theo chi nhánh (Sharded Collection)**: Lưu trữ số lượng thực tế, số lượng đã phân bổ, ngưỡng cảnh báo an toàn tối thiểu (*min_threshold*).
-14. `material_batches`: Quản lý chi tiết từng lô sản xuất (Batch Number), ngày sản xuất, hạn dùng và mã số chứng chỉ xuất xưởng CO/CQ.
-15. `stocktakes`: Biên bản kiểm kê định kỳ, đối soát sai lệch giữa số lượng tồn kho trên phần mềm và số lượng đếm thực tế tại kho.
-16. `quality_inspections`: Biên bản kiểm định chất lượng KCS / QC vật tư đầu vào trước khi nhập kho.
-17. `material_requests`: Đơn đề xuất xin cấp phát vật tư từ các chỉ huy trưởng công trình hoặc trưởng bộ phận sản xuất.
-18. `projects_departments`: Danh mục công trình, dự án xây lắp (Dự án Cao tốc Bắc Nam, Nhà máy Điện gió, Tuyến Metro) và ngân sách vật tư được cấp.
-19. `inventory_valuations`: Báo cáo định giá trị tài sản tồn kho theo phương pháp Nhập trước - Xuất trước (FIFO) hoặc Bình quân gia quyền.
-20. `material_audit_logs`: Nhật ký kiểm toán bảo mật truy vết thao tác nhập/xuất/sửa đổi số liệu kho, tự động dọn dẹp sau 365 ngày bằng **TTL Index**.
-
 ---
 
-## 3. Cấu trúc Thư mục Dự án
+## 4. Cấu trúc Thư mục Dự án
 
 ```text
 BTL_CSDLPT/
-├── .gitignore                          # Cấu hình bỏ qua các file tạm, logs, tài liệu cá nhân
+├── backend/                            # NestJS Backend API Gateway
+│   ├── src/
+│   │   ├── common/                     # Filters, Interceptors, Guards, Decorators (Branch Context, RBAC)
+│   │   ├── config/                     # Configuration Service & Environment
+│   │   ├── database/                   # MongoDB Official Native Driver Provider & Sessions
+│   │   ├── modules/                    # Health, Auth, Users, Roles, Branches, Dashboard
+│   │   ├── app.module.ts
+│   │   └── main.ts                     # Swagger setup & Global Validation Pipes
+│   ├── Dockerfile
+│   ├── .env.example
+│   └── package.json
+├── frontend/                           # React 18 + Vite Frontend Application
+│   ├── src/
+│   │   ├── components/                 # AdminLayout, Sidebar, Header, BranchSelector, UI Common
+│   │   ├── context/                    # AuthContext (JWT & Active Branch Context)
+│   │   ├── lib/                        # Centralized API client & Tailwind merge utils
+│   │   ├── pages/                      # LoginPage, DashboardOverviewPage, ModulePlaceholderPage
+│   │   ├── types/                      # TypeScript definitions for WMS & Cluster
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── .env.example
+│   └── package.json
 ├── docker/
-│   ├── docker-compose.yml              # Dựng cụm Sharded Cluster phân tán (ConfigSvr, Shard 1 - HN, Shard 2 - HCM, Mongos Router)
-│   └── init-cluster.ps1                # Script PowerShell 1-click kích hoạt Replica Sets & nạp Shard vào Router
+│   ├── docker-compose.yml              # Dựng cụm Sharded Cluster phân tán (4 MongoDB containers)
+│   └── init-cluster.ps1                # Script PowerShell 1-click kích hoạt Replica Sets & nạp Shards
 ├── scripts/
 │   ├── 01_init_schema_and_indexes.js   # Tạo 20 Collections + Schema Validation + Indexes chuyên sâu
-│   ├── 02_seed_data.js                 # Nạp dữ liệu thực tế cho 20 Collections (Nhà cung cấp, Tổng kho, Tồn kho, Phiếu xuất nhập)
-│   ├── 03_setup_sharding.js            # Kích hoạt Sharding & cấu hình Zone Sharding (Kho Miền Bắc & Kho Miền Nam)
-│   └── 04_advanced_queries.js          # 5 Aggregation Pipelines, Giao dịch ACID & Full-Text Search vật tư
-└── README.md                           # Bản thuyết minh đề tài & Hướng dẫn tổng quan
+│   ├── 02_seed_data.js                 # Nạp dữ liệu thực tế cho 20 Collections
+│   ├── 03_setup_sharding.js            # Kích hoạt Sharding & cấu hình Zone Sharding (HN vs HCM)
+│   └── 04_advanced_queries.js          # 5 Aggregation Pipelines, Giao dịch ACID & Full-Text Search
+├── docker-compose.fullstack.yml        # Docker Compose toàn diện (Cluster + Backend + Frontend)
+├── KE_HOACH_PHAT_TRIEN_MODULE_WEB_CSDLPT.txt # Tài liệu phân tích 16 Modules WMS & Demo phân tán
+└── README.md                           # Thuyết minh đề tài & Hướng dẫn vận hành
 ```
 
 ---
 
-## 4. Hướng dẫn Chạy Nhanh
+## 5. Hướng dẫn Khởi chạy Hệ thống
 
-### Bước 1: Khởi động cụm MongoDB Sharded Cluster bằng Docker
+### Cách 1: Chạy Từng Thành Phần (Development Mode)
+
+#### Bước 1: Khởi động cụm MongoDB Sharded Cluster
 Mở PowerShell tại thư mục `docker/`:
 ```powershell
 docker-compose up -d
 .\init-cluster.ps1
 ```
+*(Nếu chạy MongoDB cục bộ trên máy tính, cổng mặc định 27017 vẫn được hỗ trợ đầy đủ).*
 
-### Bước 2: Khởi tạo CSDL, Nạp Dữ liệu & Cấu hình Phân tán
+#### Bước 2: Nạp dữ liệu và cấu hình phân tán
 Mở PowerShell tại thư mục `scripts/`:
 ```powershell
-# 1. Khởi tạo Schema và Indexes cho 20 Collections:
 mongosh "mongodb://localhost:27017" < 01_init_schema_and_indexes.js
-
-# 2. Nạp dữ liệu mẫu thực tế:
 mongosh "mongodb://localhost:27017" < 02_seed_data.js
-
-# 3. Kích hoạt Sharding và Phân vùng Zone Sharding:
 mongosh "mongodb://localhost:27017" < 03_setup_sharding.js
-
-# 4. Thực thi các truy vấn nâng cao, Aggregation Pipelines & Giao dịch ACID:
-mongosh "mongodb://localhost:27017" < 04_advanced_queries.js
 ```
+
+#### Bước 3: Khởi động Backend API Gateway
+Mở terminal tại thư mục `backend/`:
+```bash
+npm install
+npm run start:dev
+```
+* **API Endpoint**: `http://localhost:5000/api/v1`
+* **Swagger API Docs**: `http://localhost:5000/docs`
+* **Health Check**: `http://localhost:5000/api/v1/health/database`
+
+#### Bước 4: Khởi động Frontend Web Application
+Mở terminal tại thư mục `frontend/`:
+```bash
+npm install
+npm run dev
+```
+* **Web App**: `http://localhost:3000`
+
+---
+
+### Cách 2: Chạy Toàn Bộ Hệ Thống bằng Docker 1-Click (Production Mode)
+
+Tại thư mục gốc dự án:
+```powershell
+docker-compose -f docker-compose.fullstack.yml up -d --build
+```
+Hệ thống sẽ tự động khởi động:
+1. `vattu-configsvr` (27019)
+2. `vattu-shard1` (27018)
+3. `vattu-shard2` (27020)
+4. `vattu-mongos` (27017)
+5. `vattu-backend` (5000)
+6. `vattu-frontend` (3000)
+
+---
+
+## 6. Danh sách Tài khoản Demo Phân quyền (RBAC)
+
+Hệ thống đã nạp sẵn 5 tài khoản mẫu tương ứng 5 vai trò (có thể click điền nhanh tại giao diện Đăng nhập):
+
+| Vai trò | Email đăng nhập | Mật khẩu | Chi nhánh / Shard phụ trách |
+| :--- | :--- | :--- | :--- |
+| **Super Admin** | `admin@wms.enterprise.vn` | `Admin@Distributed2026` | Toàn quyền toàn quốc (Tất cả Shards) |
+| **Thủ kho Miền Bắc** | `manager.hn@wms.enterprise.vn` | `Wms@123456` | **ZONE_HN** (Chỉ thao tác trên Shard 1) |
+| **Thủ kho Miền Nam** | `manager.hcm@wms.enterprise.vn` | `Wms@123456` | **ZONE_HCM** (Chỉ thao tác trên Shard 2) |
+| **Kiểm định KCS / QC** | `qc.lead@wms.enterprise.vn` | `Wms@123456` | Nghiệm thu chất lượng lô hàng vật tư |
+| **Kiểm toán viên** | `auditor@wms.enterprise.vn` | `Wms@123456` | Xem báo cáo tài chính tồn kho & Audit Logs |
