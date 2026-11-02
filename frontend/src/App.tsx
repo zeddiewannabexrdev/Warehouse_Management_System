@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { DashboardOverviewPage } from './pages/dashboard/DashboardOverviewPage';
+import { MaterialsPage } from './pages/materials/MaterialsPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 
@@ -45,7 +46,7 @@ export const App: React.FC = () => {
             <Route path="/dashboard" element={<DashboardOverviewPage />} />
 
             {/* WMS Business Modules */}
-            <Route path="/materials" element={<ModulePlaceholderPage />} />
+            <Route path="/materials" element={<MaterialsPage />} />
             <Route path="/warehouses" element={<ModulePlaceholderPage />} />
             <Route path="/inventory" element={<ModulePlaceholderPage />} />
             <Route path="/goods-receipts" element={<ModulePlaceholderPage />} />
