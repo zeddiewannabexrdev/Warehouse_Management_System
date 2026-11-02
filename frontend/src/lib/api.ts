@@ -77,6 +77,8 @@ export const api = {
     request<T>(endpoint, { method: 'POST', body: JSON.stringify(body), ...options }),
   put: <T>(endpoint: string, body?: any, options?: RequestOptions) =>
     request<T>(endpoint, { method: 'PUT', body: JSON.stringify(body), ...options }),
+  patch: <T>(endpoint: string, body?: any, options?: RequestOptions) =>
+    request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(body), ...options }),
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     request<T>(endpoint, { method: 'DELETE', ...options }),
 };

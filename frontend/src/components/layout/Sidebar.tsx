@@ -19,6 +19,7 @@ import {
   Settings,
   Database,
   Building2,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -59,6 +60,12 @@ export const Sidebar: React.FC = () => {
           name: 'Tổng kho & Ô kệ',
           path: '/warehouses',
           icon: Warehouse,
+        },
+        {
+          name: 'Nhà cung cấp & Mua sắm',
+          path: '/procurement',
+          icon: ShoppingBag,
+          badge: 'Hybrid',
         },
         {
           name: 'Tồn kho Chi nhánh',
