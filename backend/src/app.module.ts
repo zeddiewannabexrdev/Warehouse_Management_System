@@ -9,6 +9,7 @@ import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { BranchesModule } from './modules/branches/branches.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     RolesModule,
     BranchesModule,
     DashboardModule,
+    InventoryModule,
   ],
 })
 export class AppModule {}

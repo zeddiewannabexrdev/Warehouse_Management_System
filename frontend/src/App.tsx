@@ -5,6 +5,7 @@ import { AdminLayout } from './components/layout/AdminLayout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { DashboardOverviewPage } from './pages/dashboard/DashboardOverviewPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
+import { InventoryPage } from './pages/inventory/InventoryPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -47,7 +48,7 @@ export const App: React.FC = () => {
             {/* WMS Business Modules */}
             <Route path="/materials" element={<ModulePlaceholderPage />} />
             <Route path="/warehouses" element={<ModulePlaceholderPage />} />
-            <Route path="/inventory" element={<ModulePlaceholderPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/goods-receipts" element={<ModulePlaceholderPage />} />
             <Route path="/goods-issues" element={<ModulePlaceholderPage />} />
             <Route path="/stock-transfers" element={<ModulePlaceholderPage />} />
