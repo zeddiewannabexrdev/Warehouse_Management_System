@@ -5,6 +5,8 @@ import { AdminLayout } from './components/layout/AdminLayout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { DashboardOverviewPage } from './pages/dashboard/DashboardOverviewPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
+import { UsersManagementPage } from './pages/users/UsersManagementPage';
+import { BranchesConfigPage } from './pages/branches/BranchesConfigPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -63,9 +65,9 @@ export const App: React.FC = () => {
             <Route path="/ha-simulator" element={<ModulePlaceholderPage />} />
             <Route path="/audit-ttl-explorer" element={<ModulePlaceholderPage />} />
 
-            {/* Administration */}
-            <Route path="/users" element={<ModulePlaceholderPage />} />
-            <Route path="/branches" element={<ModulePlaceholderPage />} />
+            {/* Administration & Multi-Branch RBAC Foundation */}
+            <Route path="/users" element={<UsersManagementPage />} />
+            <Route path="/branches" element={<BranchesConfigPage />} />
             <Route path="/settings" element={<ModulePlaceholderPage />} />
           </Route>
 
