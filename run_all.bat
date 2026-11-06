@@ -14,29 +14,31 @@ set CURRENT_DIR=%~dp0
 
 :: Kiem tra neu he thong da dang chay de tranh khoi dong trung lap
 netstat -aon | findstr :3000 | findstr LISTENING >nul
-if %ERRORLEVEL% equ 0 (
-    echo [THONG BAO] He thong Web Frontend (Port 3000) da dang chay san.
-    echo Dang mo trinh duyet den giao dien Web...
-    start http://localhost:3000
-    goto :HOAN_TAT
-)
+if %ERRORLEVEL% equ 0 goto :WEB_DA_CHAY
 
-echo [1/3] Dang khoi dong Backend API Gateway (Port 5000)...
-start "Distributed WMS - Backend Gateway" /D "%CURRENT_DIR%backend" cmd /k "title Backend Gateway (Port 5000) && call npm run start:dev"
+echo [1/3] Dang khoi dong Backend API Gateway - Port 5000...
+start "Distributed WMS - Backend Gateway" /D "%CURRENT_DIR%backend" cmd /k "title Backend Gateway - Port 5000 && call npm run start:dev"
 
 echo     - Cho Backend khoi dong va ket noi MongoDB...
 ping 127.0.0.1 -n 5 >nul
 
 echo.
-echo [2/3] Dang khoi dong Frontend Web Application (Port 3000)...
-start "Distributed WMS - Frontend Web" /D "%CURRENT_DIR%frontend" cmd /k "title Frontend Web (Port 3000) && call npm run dev"
+echo [2/3] Dang khoi dong Frontend Web Application - Port 3000...
+start "Distributed WMS - Frontend Web" /D "%CURRENT_DIR%frontend" cmd /k "title Frontend Web - Port 3000 && call npm run dev"
 
 echo     - Cho Vite Dev Server san sang...
-ping 127.0.0.1 -n 3 >nul
+ping 127.0.0.1 -n 4 >nul
 
 echo.
 echo [3/3] Dang mo trinh duyet Web tai http://localhost:3000 ...
 start http://localhost:3000
+goto :HOAN_TAT
+
+:WEB_DA_CHAY
+echo [THONG BAO] He thong Web Frontend Port 3000 da dang chay san.
+echo Dang mo trinh duyet den giao dien Web...
+start http://localhost:3000
+goto :HOAN_TAT
 
 :HOAN_TAT
 echo.
