@@ -11,6 +11,7 @@ import { BranchesModule } from './modules/branches/branches.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { MaterialsModule } from './modules/materials/materials.module';
 import { WarehousesModule } from './modules/warehouses/warehouses.module';
+import { ProcurementModule } from './modules/procurement/procurement.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
     DashboardModule,
     MaterialsModule,
     WarehousesModule,
+    ProcurementModule,
   ],
 })
 export class AppModule {}
