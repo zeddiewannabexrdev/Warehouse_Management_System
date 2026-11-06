@@ -8,7 +8,9 @@ export interface UserEntity {
   fullName: string;
   role: UserRole;
   branch: 'HN' | 'HCM' | 'DN' | 'ALL';
+  phoneNumber?: string;
   isActive: boolean;
+  lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

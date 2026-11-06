@@ -2,6 +2,7 @@ import { Controller, Post, Body, Get, UseGuards, HttpCode, HttpStatus } from '@n
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../common/interfaces/user-payload.interface';
@@ -26,6 +27,18 @@ export class AuthController {
   @ApiOperation({ summary: 'Lấy thông tin tài khoản hiện tại kèm quyền chi nhánh' })
   async getCurrentUser(@CurrentUser() user: AuthenticatedUser) {
     return await this.authService.getCurrentUser(user.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đổi mật khẩu người dùng hiện tại' })
+  async changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return await this.authService.changePassword(user.id, changePasswordDto);
   }
 
   @ApiBearerAuth()

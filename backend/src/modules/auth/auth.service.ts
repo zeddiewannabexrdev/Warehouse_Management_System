@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from '../../common/interfaces/user-payload.interface';
 
@@ -62,7 +63,16 @@ export class AuthService {
       role: user.role,
       branch: user.branch,
       isActive: user.isActive,
+      phoneNumber: user.phoneNumber,
       createdAt: user.createdAt,
     };
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
+    return await this.usersService.changePassword(
+      userId,
+      changePasswordDto.currentPassword,
+      changePasswordDto.newPassword,
+    );
   }
 }

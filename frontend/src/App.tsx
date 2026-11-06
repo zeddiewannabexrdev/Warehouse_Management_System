@@ -9,6 +9,8 @@ import { WarehouseMapPage } from './pages/warehouses/WarehouseMapPage';
 import { ProcurementPage } from './pages/procurement/ProcurementPage';
 import { InventoryPage } from './pages/inventory/InventoryPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
+import { UsersManagementPage } from './pages/users/UsersManagementPage';
+import { BranchesConfigPage } from './pages/branches/BranchesConfigPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { StockTransfersPage } from './pages/stock-transfers/StockTransfersPage';
 import { StocktakesPage } from './pages/stocktakes/StocktakesPage';
@@ -73,9 +75,9 @@ export const App: React.FC = () => {
             <Route path="/ha-simulator" element={<ModulePlaceholderPage />} />
             <Route path="/audit-ttl-explorer" element={<ModulePlaceholderPage />} />
 
-            {/* Administration */}
-            <Route path="/users" element={<ModulePlaceholderPage />} />
-            <Route path="/branches" element={<ModulePlaceholderPage />} />
+            {/* Administration & Multi-Branch RBAC Foundation */}
+            <Route path="/users" element={<UsersManagementPage />} />
+            <Route path="/branches" element={<BranchesConfigPage />} />
             <Route path="/settings" element={<ModulePlaceholderPage />} />
           </Route>
 
