@@ -10,6 +10,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { BranchesModule } from './modules/branches/branches.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { MaterialsModule } from './modules/materials/materials.module';
+import { WarehousesModule } from './modules/warehouses/warehouses.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MaterialsModule } from './modules/materials/materials.module';
     BranchesModule,
     DashboardModule,
     MaterialsModule,
+    WarehousesModule,
   ],
 })
 export class AppModule {}

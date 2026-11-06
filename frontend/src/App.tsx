@@ -5,6 +5,7 @@ import { AdminLayout } from './components/layout/AdminLayout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { DashboardOverviewPage } from './pages/dashboard/DashboardOverviewPage';
 import { MaterialsPage } from './pages/materials/MaterialsPage';
+import { WarehouseMapPage } from './pages/warehouses/WarehouseMapPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 
@@ -47,7 +48,7 @@ export const App: React.FC = () => {
 
             {/* WMS Business Modules */}
             <Route path="/materials" element={<MaterialsPage />} />
-            <Route path="/warehouses" element={<ModulePlaceholderPage />} />
+            <Route path="/warehouses" element={<WarehouseMapPage />} />
             <Route path="/inventory" element={<ModulePlaceholderPage />} />
             <Route path="/goods-receipts" element={<ModulePlaceholderPage />} />
             <Route path="/goods-issues" element={<ModulePlaceholderPage />} />
