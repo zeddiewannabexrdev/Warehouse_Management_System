@@ -99,6 +99,13 @@ export const Sidebar: React.FC = () => {
           path: '/stocktakes',
           icon: ClipboardList,
         },
+        {
+          name: 'Báo cáo & Định giá Kho',
+          path: '/reports',
+          icon: FileCode2,
+          isSharded: true,
+          badge: 'FIFO / $facet',
+        },
       ],
     },
     {

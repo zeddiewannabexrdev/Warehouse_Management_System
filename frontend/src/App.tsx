@@ -10,6 +10,9 @@ import { ProcurementPage } from './pages/procurement/ProcurementPage';
 import { InventoryPage } from './pages/inventory/InventoryPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
+import { StockTransfersPage } from './pages/stock-transfers/StockTransfersPage';
+import { StocktakesPage } from './pages/stocktakes/StocktakesPage';
+import { DistributedReportsPage } from './pages/reports/DistributedReportsPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -56,8 +59,9 @@ export const App: React.FC = () => {
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/goods-receipts" element={<ModulePlaceholderPage />} />
             <Route path="/goods-issues" element={<ModulePlaceholderPage />} />
-            <Route path="/stock-transfers" element={<ModulePlaceholderPage />} />
-            <Route path="/stocktakes" element={<ModulePlaceholderPage />} />
+            <Route path="/stock-transfers" element={<StockTransfersPage />} />
+            <Route path="/stocktakes" element={<StocktakesPage />} />
+            <Route path="/reports" element={<DistributedReportsPage />} />
 
             {/* Distributed Database Demo Suite */}
             <Route path="/cluster-topology" element={<ModulePlaceholderPage />} />
