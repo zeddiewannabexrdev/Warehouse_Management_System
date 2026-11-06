@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { BranchSelector } from './BranchSelector';
 import { ChangePasswordModal } from '../auth/ChangePasswordModal';
+import { NotificationDropdown } from './NotificationDropdown';
 import {
   Search,
-  Bell,
   LogOut,
   User as UserIcon,
   KeyRound,
@@ -71,13 +71,8 @@ export const Header: React.FC = () => {
 
         <div className="h-4 w-px bg-slate-200 mx-1" />
 
-        <button
-          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg relative transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20"
-          title="Thông báo hệ thống"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full absolute top-1.5 right-1.5" />
-        </button>
+        {/* Notifications Popover */}
+        <NotificationDropdown />
 
         {/* User Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
