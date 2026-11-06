@@ -26,6 +26,7 @@ export class DatabaseService implements OnModuleInit, OnApplicationShutdown {
 
   async onModuleInit(): Promise<void> {
     await this.ensureConnected();
+    await this.ensureTtlIndexes(); // Kích hoạt TTL Index
   }
 
   async ensureConnected(): Promise<void> {
@@ -58,13 +59,30 @@ export class DatabaseService implements OnModuleInit, OnApplicationShutdown {
 
       await this.client.connect();
       this.db = this.client.db(dbName);
-      
+
       await this.db.command({ ping: 1 });
       this.isConnected = true;
-      this.logger.log(`Successfully connected to MongoDB database [${dbName}] via Mongos router`);
+      this.logger.log(`Successfully connected to MongoDB database [${dbName}] via Replica Set (Module 14)`);
     } catch (error) {
       this.isConnected = false;
       this.logger.error(`Failed to connect to MongoDB: ${(error as Error).message}`);
+    }
+  }
+
+  // Module 15: Tạo TTL Index tự động xóa log sau 30 ngày
+  async ensureTtlIndexes(): Promise<void> {
+    try {
+      const db = this.getDb();
+      const auditCollection = db.collection('audit_logs');
+
+      await auditCollection.createIndex(
+        { createdAt: 1 },
+        { expireAfterSeconds: 30 * 24 * 60 * 60, name: 'audit_ttl_expiry' }
+      );
+
+      this.logger.log('TTL Index for audit_logs successfully initialized ');
+    } catch (error) {
+      this.logger.error(`Failed to create TTL index: ${(error as Error).message}`);
     }
   }
 
