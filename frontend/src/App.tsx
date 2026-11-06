@@ -15,6 +15,11 @@ import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { StockTransfersPage } from './pages/stock-transfers/StockTransfersPage';
 import { StocktakesPage } from './pages/stocktakes/StocktakesPage';
 import { DistributedReportsPage } from './pages/reports/DistributedReportsPage';
+import { ClusterTopologyPage } from './pages/cluster/ClusterTopologyPage';
+import { ShardDistributionPage } from './pages/cluster/ShardDistributionPage';
+import { QueryAnalyzerPage } from './pages/cluster/QueryAnalyzerPage';
+import { DistributedTransactionsPage } from './pages/cluster/DistributedTransactionsPage';
+import { ZoneShardingLabPage } from './pages/cluster/ZoneShardingLabPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -66,12 +71,12 @@ export const App: React.FC = () => {
             <Route path="/reports" element={<DistributedReportsPage />} />
 
             {/* Distributed Database Demo Suite */}
-            <Route path="/cluster-topology" element={<ModulePlaceholderPage />} />
-            <Route path="/shard-distribution" element={<ModulePlaceholderPage />} />
-            <Route path="/query-analyzer" element={<ModulePlaceholderPage />} />
-            <Route path="/explain-plan" element={<ModulePlaceholderPage />} />
-            <Route path="/distributed-transactions" element={<ModulePlaceholderPage />} />
-            <Route path="/zone-sharding-lab" element={<ModulePlaceholderPage />} />
+            <Route path="/cluster-topology" element={<ClusterTopologyPage />} />
+            <Route path="/shard-distribution" element={<ShardDistributionPage />} />
+            <Route path="/query-analyzer" element={<QueryAnalyzerPage />} />
+            <Route path="/explain-plan" element={<QueryAnalyzerPage />} />
+            <Route path="/distributed-transactions" element={<DistributedTransactionsPage />} />
+            <Route path="/zone-sharding-lab" element={<ZoneShardingLabPage />} />
             <Route path="/ha-simulator" element={<ModulePlaceholderPage />} />
             <Route path="/audit-ttl-explorer" element={<ModulePlaceholderPage />} />
 

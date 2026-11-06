@@ -16,6 +16,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { StockTransfersModule } from './modules/stock-transfers/stock-transfers.module';
 import { StocktakesModule } from './modules/stocktakes/stocktakes.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { ClusterDemoModule } from './modules/cluster-demo/cluster-demo.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     StockTransfersModule,
     StocktakesModule,
     ReportsModule,
+    ClusterDemoModule,
   ],
 })
 export class AppModule {}
