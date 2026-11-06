@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { DashboardOverview } from '../../types/dashboard.types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -16,6 +17,13 @@ import {
   Activity,
   Truck,
   CheckCircle,
+  ShieldCheck,
+  ClipboardCheck,
+  Calculator,
+  ArrowRightLeft,
+  FileCheck2,
+  ExternalLink,
+  Scale,
 } from 'lucide-react';
 import {
   BarChart,
@@ -28,11 +36,14 @@ import {
 } from 'recharts';
 
 export const DashboardOverviewPage: React.FC = () => {
-  const { activeBranch } = useAuth();
+  const { activeBranch, user } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const role = user?.role || 'SUPER_ADMIN';
 
   const fetchOverview = async () => {
     try {
@@ -65,30 +76,132 @@ export const DashboardOverviewPage: React.FC = () => {
 
   const isDbConnected = data?.connection.status === 'CONNECTED';
 
+  // Role metadata configurations
+  const getRoleHeaderInfo = () => {
+    switch (role) {
+      case 'MANAGER_HN':
+        return {
+          title: 'Bảng Điều Phối Tổng Kho Miền Bắc (Shard 1 - Hà Nội)',
+          subtitle: 'Giám sát định mức khả dụng, tình trạng lấp đầy ô kệ kho Long Biên và cảnh báo an toàn cục bộ.',
+          badge: 'ZONE_HN · Shard 1 (27018)',
+          badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+          actions: [
+            { label: 'Lập lệnh chuyển sang HCM', link: '/stock-transfers', primary: true },
+            { label: 'Cập nhật định mức tồn', link: '/inventory' },
+            { label: 'Bản đồ ô kệ Hà Nội', link: '/warehouses' },
+            { label: 'Kiểm kê kho HN', link: '/stocktakes' },
+          ],
+        };
+      case 'MANAGER_HCM':
+        return {
+          title: 'Bảng Điều Phối Tổng Kho Miền Nam (Shard 2 - TP.HCM)',
+          subtitle: 'Giám sát định mức khả dụng, tình trạng lấp đầy ô kệ kho Cát Lái và tiếp nhận điều chuyển liên vùng.',
+          badge: 'ZONE_HCM · Shard 2 (27020)',
+          badgeColor: 'bg-blue-50 text-blue-800 border-blue-200',
+          actions: [
+            { label: 'Xác nhận nhập kho liên vùng', link: '/stock-transfers', primary: true },
+            { label: 'Cập nhật định mức tồn', link: '/inventory' },
+            { label: 'Bản đồ ô kệ Cát Lái', link: '/warehouses' },
+            { label: 'Kiểm kê kho HCM', link: '/stocktakes' },
+          ],
+        };
+      case 'QC_INSPECTOR':
+        return {
+          title: 'Trung Tâm Điều Hành Kiểm Định Chất Lượng & KCS',
+          subtitle: 'Theo dõi tiến độ nghiệm thu vật tư nhập kho, cấp chứng chỉ CO/CQ và xử lý thu hồi vật tư lỗi từ công trình.',
+          badge: 'KCS / QC · QUALITY CONTROL',
+          badgeColor: 'bg-purple-50 text-purple-800 border-purple-200',
+          actions: [
+            { label: 'Nghiệm thu lô nhập kho', link: '/stocktakes', primary: true },
+            { label: 'Phiếu thu hồi công trình', link: '/stock-transfers' },
+            { label: 'Tiêu chuẩn kỹ thuật vật tư', link: '/materials' },
+          ],
+        };
+      case 'AUDITOR':
+        return {
+          title: 'Bảng Điều Hành Kiểm Toán & Đối Soát Tài Sản Kho',
+          subtitle: 'Theo dõi định giá tài sản tồn kho (FIFO), phê duyệt bút toán điều chỉnh cân đối và truy vết nhật ký kiểm toán.',
+          badge: 'AUDITOR · READ-ONLY ALL SHARDS',
+          badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
+          actions: [
+            { label: 'Duyệt đối soát cân đối kho', link: '/stocktakes', primary: true },
+            { label: 'Báo cáo định giá vốn FIFO', link: '/reports' },
+            { label: 'Truy vết Audit Logs', link: '/cluster-topology' },
+          ],
+        };
+      default: // SUPER_ADMIN
+        return {
+          title: 'Tổng quan Quản trị & Điều phối Toàn quốc',
+          subtitle: 'Giám sát toàn diện cụm Sharded Cluster, cân bằng dữ liệu đa vùng miền và kiểm soát lưu lượng nghiệp vụ toàn quốc.',
+          badge: 'SUPER ADMIN · FULL CLUSTER ACCESS',
+          badgeColor: 'bg-slate-900 text-white border-slate-900',
+          actions: [
+            { label: 'Cấu trúc Topology Cụm', link: '/cluster-topology', primary: true },
+            { label: 'Phân bổ Shard Data', link: '/shard-distribution' },
+            { label: 'Quản trị Người dùng', link: '/users' },
+            { label: 'Báo cáo toàn quốc', link: '/reports' },
+          ],
+        };
+    }
+  };
+
+  const headerInfo = getRoleHeaderInfo();
+
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Tổng quan Quản trị & Điều phối Kho (WMS)
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Theo dõi trạng thái phân tán, tồn kho khả dụng và cảnh báo định mức an toàn giữa các tổng kho vùng miền.
-          </p>
+      {/* Role-Specific Header Card */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className={`px-2.5 py-0.5 text-[10px] font-mono font-bold rounded-md border ${headerInfo.badgeColor}`}>
+                {headerInfo.badge}
+              </span>
+              <span className="text-xs text-slate-500 font-medium">
+                Phiên làm việc: <strong>{user?.fullName || user?.email}</strong>
+              </span>
+            </div>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              {headerInfo.title}
+            </h1>
+            <p className="text-xs text-slate-500 mt-1 max-w-3xl">
+              {headerInfo.subtitle}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
+              Làm mới
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
-            Làm mới
-          </button>
+        {/* Role Quick Action Shortcuts */}
+        <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-slate-400 font-medium text-[11px] mr-1">Tác vụ nhanh:</span>
+          {headerInfo.actions.map((act, idx) => (
+            <button
+              key={idx}
+              onClick={() => navigate(act.link)}
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg font-semibold transition-colors shadow-2xs ${
+                act.primary
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+              }`}
+            >
+              {act.label}
+              <ExternalLink className="w-3 h-3 opacity-70" />
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Cluster Health & Zone Routing Banner */}
       <div className={`p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs ${
         isDbConnected
           ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
@@ -125,99 +238,246 @@ export const DashboardOverviewPage: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium text-slate-500">
-              Vật tư toàn quốc
-            </span>
-            <Layers className="w-4 h-4 text-slate-400" />
+      {/* Role-Tailored 6-Metric Cards Grid */}
+      {role === 'QC_INSPECTOR' ? (
+        // QC INSPECTOR CARDS
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Chờ KCS nghiệm thu</span>
+              <Truck className="w-4 h-4 text-purple-600" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.pendingReceiptsCount || 0)}</div>
+            <div className="text-[10px] text-purple-600 mt-1 font-mono">Lô hàng mới nhập</div>
           </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {formatNumber(data?.metrics.totalMaterials || 0)}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Tỷ lệ đạt chuẩn</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-bold text-emerald-600">98.5%</div>
+            <div className="text-[10px] text-emerald-600 mt-1 font-mono">Đủ tem kiểm định</div>
           </div>
-          <div className="text-[10px] text-slate-400 mt-1 font-mono">Global Unsharded</div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Vật tư có chứng chỉ</span>
+              <FileCheck2 className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.totalMaterials || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">CO / CQ hợp lệ</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Lô cần xử lý lỗi</span>
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-2xl font-bold text-amber-600">2</div>
+            <div className="text-[10px] text-amber-600 mt-1 font-mono">Chờ thẩm định lại</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Thu hồi công trình</span>
+              <ArrowRightLeft className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">4</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Thu hồi về bãi</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Tiêu chuẩn kỹ thuật</span>
+              <Layers className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">4 nhóm</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Thép, Cáp, Xi, Sơn</div>
+          </div>
         </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium text-slate-500">
-              Tổng kho vùng miền
-            </span>
-            <Warehouse className="w-4 h-4 text-slate-400" />
+      ) : role === 'AUDITOR' ? (
+        // AUDITOR CARDS
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Giá trị vốn kho</span>
+              <Calculator className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-xl font-bold text-slate-900 font-mono">1.82 tỷ đ</div>
+            <div className="text-[10px] text-blue-600 mt-1 font-mono">Định giá FIFO</div>
           </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {formatNumber(data?.metrics.totalWarehouses || 0)}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Kỳ kiểm kê hoàn tất</span>
+              <ClipboardCheck className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">3 đợt</div>
+            <div className="text-[10px] text-emerald-600 mt-1 font-mono">Đã chốt sổ sách</div>
           </div>
-          <div className="text-[10px] text-slate-400 mt-1 font-mono">HN, HCM, DN</div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Chênh lệch chờ duyệt</span>
+              <Scale className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-2xl font-bold text-amber-600">1 phiếu</div>
+            <div className="text-[10px] text-amber-600 mt-1 font-mono">Chờ bút toán ACID</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Độ chuẩn xác kho</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-bold text-emerald-600">99.4%</div>
+            <div className="text-[10px] text-emerald-600 mt-1 font-mono">Khớp thẻ kho 2D</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Nhật ký Audit 24h</span>
+              <Activity className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.recentActivities?.length || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Truy vết nhạy cảm</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Chỉ mục TTL Index</span>
+              <Server className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">90 ngày</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Tự động hủy log cũ</div>
+          </div>
         </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium text-slate-500">
-              Mặt hàng tồn kho
-            </span>
-            <Boxes className="w-4 h-4 text-blue-600" />
+      ) : role === 'MANAGER_HN' || role === 'MANAGER_HCM' ? (
+        // WAREHOUSE MANAGERS CARDS (HN / HCM)
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Mặt hàng tại kho</span>
+              <Boxes className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-blue-700">{formatNumber(data?.metrics.totalStockItems || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">
+              {role === 'MANAGER_HN' ? 'Kho Long Biên (HN)' : 'Kho Cát Lái (HCM)'}
+            </div>
           </div>
-          <div className="text-2xl font-bold text-blue-700">
-            {formatNumber(data?.metrics.totalStockItems || 0)}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Dưới định mức an toàn</span>
+              <AlertTriangle className="w-4 h-4 text-rose-500" />
+            </div>
+            <div className="text-2xl font-bold text-rose-600">{formatNumber(data?.metrics.lowStockAlertsCount || 0)}</div>
+            <div className="text-[10px] text-rose-500 mt-1 font-mono">Cần mua bổ sung</div>
           </div>
-          <div className="text-[10px] text-amber-700 mt-1 font-mono font-medium">Sharded Collection</div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Phiếu nhập kho chờ</span>
+              <Truck className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.pendingReceiptsCount || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Chờ nghiệm thu KCS</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Phiếu xuất công trình</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.pendingIssuesCount || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Cấp phát thi công</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Điều chuyển liên kho</span>
+              <ArrowRightLeft className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">
+              {role === 'MANAGER_HN' ? '2 đang xuất' : '2 đang đến'}
+            </div>
+            <div className="text-[10px] text-blue-600 mt-1 font-mono">Giao dịch ACID 2PC</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Node Shard cục bộ</span>
+              <Server className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-lg font-bold text-emerald-700 font-mono mt-0.5">
+              {role === 'MANAGER_HN' ? 'Shard 1 (27018)' : 'Shard 2 (27020)'}
+            </div>
+            <div className="text-[10px] text-emerald-600 mt-1 font-mono">Targeted Query (1ms)</div>
+          </div>
         </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium text-slate-500">
-              Dưới ngưỡng an toàn
-            </span>
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
+      ) : (
+        // DEFAULT / SUPER_ADMIN CARDS
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Vật tư toàn quốc</span>
+              <Layers className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.totalMaterials || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Global Unsharded</div>
           </div>
-          <div className="text-2xl font-bold text-rose-600">
-            {formatNumber(data?.metrics.lowStockAlertsCount || 0)}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Tổng kho vùng miền</span>
+              <Warehouse className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.totalWarehouses || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">HN, HCM, DN</div>
           </div>
-          <div className="text-[10px] text-rose-500 mt-1 font-mono">Cần mua bổ sung</div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Mặt hàng tồn kho</span>
+              <Boxes className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-blue-700">{formatNumber(data?.metrics.totalStockItems || 0)}</div>
+            <div className="text-[10px] text-amber-700 mt-1 font-mono font-medium">Sharded Collection</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Dưới ngưỡng an toàn</span>
+              <AlertTriangle className="w-4 h-4 text-rose-500" />
+            </div>
+            <div className="text-2xl font-bold text-rose-600">{formatNumber(data?.metrics.lowStockAlertsCount || 0)}</div>
+            <div className="text-[10px] text-rose-500 mt-1 font-mono">Cần mua bổ sung</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Phiếu nhập chờ</span>
+              <Truck className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.pendingReceiptsCount || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Chờ nghiệm thu KCS</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-[11px] font-medium text-slate-500">Phiếu xuất chờ</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(data?.metrics.pendingIssuesCount || 0)}</div>
+            <div className="text-[10px] text-slate-400 mt-1 font-mono">Cấp phát công trường</div>
+          </div>
         </div>
+      )}
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium text-slate-500">
-              Phiếu nhập chờ
-            </span>
-            <Truck className="w-4 h-4 text-slate-400" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {formatNumber(data?.metrics.pendingReceiptsCount || 0)}
-          </div>
-          <div className="text-[10px] text-slate-400 mt-1 font-mono">Chờ nghiệm thu KCS</div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium text-slate-500">
-              Phiếu xuất chờ
-            </span>
-            <ArrowUpRight className="w-4 h-4 text-slate-400" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {formatNumber(data?.metrics.pendingIssuesCount || 0)}
-          </div>
-          <div className="text-[10px] text-slate-400 mt-1 font-mono">Cấp phát công trường</div>
-        </div>
-      </div>
-
+      {/* Main Content Panels Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-5 rounded border border-slate-200 shadow-2xs flex flex-col justify-between">
+        {/* Left Panel: Chart for Admin/Auditor, or Storage Utilization for Warehouse Managers */}
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-semibold text-slate-900">
-                Phân bổ Tồn kho theo Chi nhánh & Shards
+                {role === 'MANAGER_HN'
+                  ? 'Phân Bổ Tồn Kho & Dung Lượng Kho Hà Nội (Shard 1)'
+                  : role === 'MANAGER_HCM'
+                  ? 'Phân Bổ Tồn Kho & Dung Lượng Kho TP.HCM (Shard 2)'
+                  : 'Phân Bổ Tồn Kho Theo Chi Nhánh & Shards'}
               </h3>
               <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono border border-slate-200">
                 Zone Sharding
               </span>
             </div>
             <p className="text-xs text-slate-500 mb-4">
-              Dữ liệu tồn kho được lưu trữ vật lý tại Shard 1 (Hà Nội) và Shard 2 (TP.HCM).
+              {role === 'MANAGER_HN'
+                ? 'Dữ liệu được lưu trữ và truy vấn trực tiếp trên Shard 1 (Port 27018).'
+                : role === 'MANAGER_HCM'
+                ? 'Dữ liệu được lưu trữ và truy vấn trực tiếp trên Shard 2 (Port 27020).'
+                : 'Dữ liệu tồn kho được lưu trữ vật lý tại Shard 1 (Hà Nội) và Shard 2 (TP.HCM).'}
             </p>
 
             {data?.branchComparison && data.branchComparison.length > 0 ? (
@@ -231,13 +491,13 @@ export const DashboardOverviewPage: React.FC = () => {
                       contentStyle={{
                         backgroundColor: '#0f172a',
                         border: 'none',
-                        borderRadius: '4px',
+                        borderRadius: '6px',
                         fontSize: '11px',
                         color: '#fff',
                       }}
                     />
-                    <Bar dataKey="stockItemCount" name="Số mặt hàng tồn" fill="#1b3f65" radius={[2, 2, 0, 0]} />
-                    <Bar dataKey="totalQuantity" name="Tổng sản lượng" fill="#6196c5" radius={[2, 2, 0, 0]} />
+                    <Bar dataKey="stockItemCount" name="Số mặt hàng tồn" fill="#1b3f65" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="totalQuantity" name="Tổng sản lượng" fill="#6196c5" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -252,25 +512,30 @@ export const DashboardOverviewPage: React.FC = () => {
           <div className="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
             <div className="p-2 bg-slate-50 rounded border border-slate-100 font-mono text-[11px]">
               <div className="text-slate-400 font-sans">Chi nhánh HN:</div>
-              <span className="font-semibold text-slate-700">vattu-shard1 (ZONE_HN)</span>
+              <span className="font-semibold text-emerald-800">Shard 1 (ZONE_HN - 27018)</span>
             </div>
             <div className="p-2 bg-slate-50 rounded border border-slate-100 font-mono text-[11px]">
               <div className="text-slate-400 font-sans">Chi nhánh HCM:</div>
-              <span className="font-semibold text-slate-700">vattu-shard2 (ZONE_HCM)</span>
+              <span className="font-semibold text-blue-800">Shard 2 (ZONE_HCM - 27020)</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded border border-slate-200 shadow-2xs flex flex-col justify-between">
+        {/* Right Panel: Alerts and Warnings */}
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-semibold text-slate-900">
-                Cảnh báo Vật tư Dưới Định mức An toàn
+                Cảnh Báo Vật Tư Dưới Định Mức An Toàn
               </h3>
               <StatusBadge status="QUAN TRỌNG" variant="danger" />
             </div>
             <p className="text-xs text-slate-500 mb-4">
-              Truy vấn Aggregation phát hiện mặt hàng có số lượng khả dụng &lt;= ngưỡng tối thiểu.
+              {role === 'MANAGER_HN'
+                ? 'Các mặt hàng tại kho Hà Nội có số lượng tồn khả dụng <= định mức tối thiểu.'
+                : role === 'MANAGER_HCM'
+                ? 'Các mặt hàng tại kho TP.HCM có số lượng tồn khả dụng <= định mức tối thiểu.'
+                : 'Truy vấn Aggregation phát hiện mặt hàng có số lượng khả dụng <= ngưỡng tối thiểu.'}
             </p>
 
             {data?.lowStockAlerts && data.lowStockAlerts.length > 0 ? (
@@ -288,7 +553,7 @@ export const DashboardOverviewPage: React.FC = () => {
                   <tbody className="divide-y divide-slate-100">
                     {data.lowStockAlerts.map((item, idx) => (
                       <tr key={idx} className="hover:bg-slate-50">
-                        <td className="py-2.5 font-mono text-brand-700 font-medium">
+                        <td className="py-2.5 font-mono text-blue-700 font-medium">
                           {item.material_code}
                         </td>
                         <td className="py-2.5 text-slate-800 font-medium truncate max-w-[140px]">
@@ -320,18 +585,23 @@ export const DashboardOverviewPage: React.FC = () => {
 
           <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
             <span>Truy vấn Targeted Query theo Shard Key</span>
-            <span className="font-mono text-brand-700 font-medium">Stage: SINGLE_SHARD</span>
+            <span className="font-mono text-blue-700 font-medium">Stage: SINGLE_SHARD</span>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-5 rounded border border-slate-200 shadow-2xs">
+      {/* Bottom Panel: Activity Log Table */}
+      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-semibold text-slate-900">
-            Nhật ký Hoạt động Kho & Truy vết Kiểm toán Gần nhất
+            {role === 'AUDITOR'
+              ? 'Nhật Ký Kiểm Toán & Bút Toán Đối Soát Gần Nhất'
+              : role === 'QC_INSPECTOR'
+              ? 'Nhật Ký Nghiệm Thu & Kiểm Định Chất Lượng Gần Nhất'
+              : 'Nhật Ký Hoạt Động Kho & Truy Vết Gần Nhất'}
           </h3>
           <span className="text-[11px] text-slate-400 font-mono">
-            Collection: material_audit_logs (TTL Index 365d)
+            Collection: material_audit_logs (TTL Index 90d)
           </span>
         </div>
         <p className="text-xs text-slate-500 mb-4">

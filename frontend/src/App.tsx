@@ -20,6 +20,8 @@ import { ShardDistributionPage } from './pages/cluster/ShardDistributionPage';
 import { QueryAnalyzerPage } from './pages/cluster/QueryAnalyzerPage';
 import { DistributedTransactionsPage } from './pages/cluster/DistributedTransactionsPage';
 import { ZoneShardingLabPage } from './pages/cluster/ZoneShardingLabPage';
+import { HaSimulatorPage } from './pages/cluster/HaSimulatorPage';
+import { AuditTtlExplorerPage } from './pages/cluster/AuditTtlExplorerPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -77,8 +79,8 @@ export const App: React.FC = () => {
             <Route path="/explain-plan" element={<QueryAnalyzerPage />} />
             <Route path="/distributed-transactions" element={<DistributedTransactionsPage />} />
             <Route path="/zone-sharding-lab" element={<ZoneShardingLabPage />} />
-            <Route path="/ha-simulator" element={<ModulePlaceholderPage />} />
-            <Route path="/audit-ttl-explorer" element={<ModulePlaceholderPage />} />
+            <Route path="/ha-simulator" element={<HaSimulatorPage />} />
+            <Route path="/audit-ttl-explorer" element={<AuditTtlExplorerPage />} />
 
             {/* Administration & Multi-Branch RBAC Foundation */}
             <Route path="/users" element={<UsersManagementPage />} />
