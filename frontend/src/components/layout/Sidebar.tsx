@@ -48,13 +48,12 @@ export const Sidebar: React.FC = () => {
       ],
     },
     {
-      groupName: 'NGHIỆP VỤ KHO BÃI (WMS)',
+      groupName: 'NGHIỆP VỤ KHO BÃI',
       items: [
         {
           name: 'Danh mục Vật tư',
           path: '/materials',
           icon: Layers,
-          badge: 'Global',
         },
         {
           name: 'Tổng kho & Ô kệ',
@@ -65,34 +64,29 @@ export const Sidebar: React.FC = () => {
           name: 'Nhà cung cấp & Mua sắm',
           path: '/procurement',
           icon: ShoppingBag,
-          badge: 'Hybrid',
         },
         {
           name: 'Tồn kho Chi nhánh',
           path: '/inventory',
           icon: Boxes,
           isSharded: true,
-          badge: 'Sharded',
         },
         {
           name: 'Phiếu Nhập kho',
           path: '/goods-receipts',
           icon: Truck,
           isSharded: true,
-          badge: 'Zone HN/HCM',
         },
         {
           name: 'Phiếu Xuất kho',
           path: '/goods-issues',
           icon: Truck,
           isSharded: true,
-          badge: 'ACID Txn',
         },
         {
           name: 'Luân chuyển Liên kho',
           path: '/stock-transfers',
           icon: ArrowLeftRight,
-          badge: 'Cross-Zone',
         },
         {
           name: 'Kiểm kê Kho',
@@ -104,59 +98,46 @@ export const Sidebar: React.FC = () => {
           path: '/reports',
           icon: FileCode2,
           isSharded: true,
-          badge: 'FIFO / $facet',
         },
       ],
     },
     {
-      groupName: 'CƠ SỞ DỮ LIỆU PHÂN TÁN (DEMO)',
+      groupName: 'THỰC NGHIỆM PHÂN TÁN (DEMO)',
       items: [
         {
           name: 'Cấu trúc Cụm Cluster',
           path: '/cluster-topology',
           icon: Network,
-          badge: '4 Nodes',
         },
         {
           name: 'Phân bổ Shard Data',
           path: '/shard-distribution',
           icon: Server,
-          badge: 'Stats',
         },
         {
           name: 'Phân tích Định tuyến',
           path: '/query-analyzer',
           icon: Cpu,
-          badge: 'Targeted vs Scatter',
-        },
-        {
-          name: 'Explain Execution Plan',
-          path: '/explain-plan',
-          icon: FileCode2,
         },
         {
           name: 'Giao dịch Phân tán ACID',
           path: '/distributed-transactions',
           icon: Shuffle,
-          badge: 'Rollback Demo',
         },
         {
           name: 'Zone Sharding Lab',
           path: '/zone-sharding-lab',
           icon: Building2,
-          badge: 'HN vs HCM',
         },
         {
           name: 'Mô phỏng Chịu lỗi HA',
           path: '/ha-simulator',
           icon: ShieldCheck,
-          badge: 'Failover',
         },
         {
           name: 'Truy vết Audit & TTL',
           path: '/audit-ttl-explorer',
           icon: History,
-          badge: 'TTL 365d',
         },
       ],
     },
@@ -210,27 +191,22 @@ export const Sidebar: React.FC = () => {
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center justify-between px-3 py-2 rounded text-xs font-medium transition-colors ${
+                    `flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                       isActive
-                        ? 'bg-brand-700/80 text-white font-semibold'
-                        : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                        ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
                     }`
                   }
                 >
                   <div className="flex items-center gap-2.5 truncate">
-                    <item.icon className="w-4 h-4 shrink-0 text-slate-400" />
+                    <item.icon className="w-4 h-4 shrink-0 opacity-80" />
                     <span className="truncate">{item.name}</span>
                   </div>
-                  {item.badge && (
+                  {item.isSharded && (
                     <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-normal tracking-tight shrink-0 border ${
-                        item.isSharded
-                          ? 'bg-amber-950/60 text-amber-300 border-amber-800/80'
-                          : 'bg-slate-800 text-slate-300 border-slate-700'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
+                      title="Phân mảnh ngang (Sharded Collection)"
+                      className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"
+                    />
                   )}
                 </NavLink>
               ))}

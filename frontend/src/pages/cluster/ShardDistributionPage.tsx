@@ -105,43 +105,40 @@ export const ShardDistributionPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      {/* Header Bar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
-              Module B10
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              Phân Bổ Dữ Liệu Shard (Data Distribution)
+            </h1>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
               Balancer: Cân Bằng Dữ Liệu
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mt-2">
-            Phân Bổ Shard Data (Shard Distribution Viewer)
-          </h1>
-          <p className="text-sm text-slate-600 mt-1">
-            Theo dõi trực quan tỷ lệ phân bổ dữ liệu thực tế giữa Shard 1 (Miền Bắc) và Shard 2 (Miền Nam) theo từng Collection.
+          <p className="text-xs text-slate-500 mt-1">
+            Kết xuất trực tiếp từ <code>db.collection.getShardDistribution()</code> đo lường tỷ lệ phân bổ documents và chunks giữa 2 Shard.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <select
             value={selectedCol}
             onChange={(e) => setSelectedCol(e.target.value)}
-            className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
-            <option value="inventory_stocks">Collection: inventory_stocks</option>
-            <option value="goods_receipts">Collection: goods_receipts</option>
-            <option value="goods_issues">Collection: goods_issues</option>
+            <option value="inventory_stocks">inventory_stocks (Tồn kho)</option>
+            <option value="goods_receipts">goods_receipts (Nhập kho)</option>
+            <option value="goods_issues">goods_issues (Xuất kho)</option>
           </select>
 
           <button
             onClick={() => fetchDistribution(selectedCol)}
             disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition"
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             Làm mới
           </button>
         </div>
@@ -149,96 +146,104 @@ export const ShardDistributionPage: React.FC = () => {
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-sm font-medium">Tổng Tài Liệu (Docs)</span>
-            <Database className="w-5 h-5 text-blue-600" />
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-xs font-medium">Tổng Tài Liệu (Docs)</span>
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Database className="w-4 h-4" />
+            </div>
           </div>
           <div className="text-2xl font-bold text-slate-900">{data?.totalDocuments || 0}</div>
-          <p className="text-xs text-slate-500 mt-1">Trong collection {selectedCol}</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">Collection {selectedCol}</p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-sm font-medium">Dung Lượng Ước Tính</span>
-            <Layers className="w-5 h-5 text-indigo-600" />
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-xs font-medium">Dung Lượng Ước Tính</span>
+            <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Layers className="w-4 h-4" />
+            </div>
           </div>
           <div className="text-2xl font-bold text-slate-900">{data?.totalEstimatedSizeKb || 0} KB</div>
-          <p className="text-xs text-slate-500 mt-1">Khoảng 520 bytes / Document</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">Khoảng 520 bytes / Document</p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-sm font-medium">Shard 1 (Hà Nội)</span>
-            <Server className="w-5 h-5 text-emerald-600" />
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-xs font-medium">Shard 1 (Hà Nội)</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Server className="w-4 h-4" />
+            </div>
           </div>
           <div className="text-2xl font-bold text-emerald-600">{shard1?.documentCount || 0} docs</div>
-          <p className="text-xs text-slate-500 mt-1">{shard1?.percentage || 0}% toàn bộ dữ liệu</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">{shard1?.percentage || 0}% toàn bộ dữ liệu</p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-sm font-medium">Shard 2 (TP.HCM)</span>
-            <Server className="w-5 h-5 text-amber-600" />
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-xs font-medium">Shard 2 (TP.HCM)</span>
+            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Server className="w-4 h-4" />
+            </div>
           </div>
           <div className="text-2xl font-bold text-amber-600">{shard2?.documentCount || 0} docs</div>
-          <p className="text-xs text-slate-500 mt-1">{shard2?.percentage || 0}% toàn bộ dữ liệu</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">{shard2?.percentage || 0}% toàn bộ dữ liệu</p>
         </div>
       </div>
 
       {/* Visual Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bar Chart */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
-              <h3 className="font-bold text-slate-800">Số Lượng Document Từng Shard</h3>
+              <BarChart3 className="w-4 h-4 text-blue-600" />
+              <h3 className="font-bold text-slate-800 text-sm">Số Lượng Document Từng Shard</h3>
             </div>
-            <span className="text-xs text-slate-500">Đơn vị: Bản ghi</span>
+            <span className="text-[11px] text-slate-500">Đơn vị: Bản ghi</span>
           </div>
-          <div className="h-64">
+          <div className="h-60">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
                 <Tooltip
                   formatter={(val: number) => [`${val} bản ghi`, 'Số lượng']}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
                 />
-                <Bar dataKey="documents" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="documents" radius={[4, 4, 0, 0]} maxBarSize={60} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <PieIcon className="w-5 h-5 text-purple-600" />
-              <h3 className="font-bold text-slate-800">Tỷ Lệ Phân Bổ (%)</h3>
+              <PieIcon className="w-4 h-4 text-purple-600" />
+              <h3 className="font-bold text-slate-800 text-sm">Tỷ Lệ Phân Bổ (%)</h3>
             </div>
-            <span className="text-xs text-slate-500">Zone HN vs Zone HCM</span>
+            <span className="text-[11px] text-slate-500">Zone HN vs Zone HCM</span>
           </div>
-          <div className="h-64">
+          <div className="h-60">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
-                  innerRadius={50}
+                  outerRadius={75}
+                  innerRadius={45}
                   dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name.split(' ')[0]}: ${(percent * 100).toFixed(0)}%`}
                 >
                   {pieData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(val: number) => [`${val} bản ghi`, 'Số lượng']} />
-                <Legend />
+                <Legend iconSize={8} wrapperStyle={{ fontSize: '11px' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -246,43 +251,43 @@ export const ShardDistributionPage: React.FC = () => {
       </div>
 
       {/* Shards Comparison Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-slate-100">
-          <h3 className="font-bold text-slate-800">Bảng Đối Chiếu Chi Tiết Từng Node Shard</h3>
-          <p className="text-xs text-slate-500 mt-1">Thông tin kết xuất từ lệnh <code>db.collection.getShardDistribution()</code></p>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100">
+          <h3 className="font-bold text-slate-800 text-sm">Bảng Đối Chiếu Chi Tiết Từng Node Shard</h3>
+          <p className="text-[11px] text-slate-500 mt-0.5">Số liệu thực nghiệm kết xuất từ <code>getShardDistribution()</code></p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200">
               <tr>
-                <th className="px-6 py-3.5">Node Shard</th>
-                <th className="px-6 py-3.5">Zone Tag</th>
-                <th className="px-6 py-3.5">Cổng Dịch Vụ</th>
-                <th className="px-6 py-3.5">Số Tài Liệu</th>
-                <th className="px-6 py-3.5">Tỷ Lệ Phân Bổ</th>
-                <th className="px-6 py-3.5">Dung Lượng</th>
-                <th className="px-6 py-3.5">Số Chunks</th>
-                <th className="px-6 py-3.5">Trạng Thái</th>
+                <th className="px-5 py-3">Node Shard</th>
+                <th className="px-5 py-3">Zone Tag</th>
+                <th className="px-5 py-3">Cổng Port</th>
+                <th className="px-5 py-3">Số Tài Liệu</th>
+                <th className="px-5 py-3">Tỷ Lệ Phân Bổ</th>
+                <th className="px-5 py-3">Dung Lượng</th>
+                <th className="px-5 py-3">Số Chunks</th>
+                <th className="px-5 py-3">Trạng Thái</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {data?.shards.map((s) => (
-                <tr key={s.shardId} className="hover:bg-slate-50/60 transition">
-                  <td className="px-6 py-4 font-semibold text-slate-900">{s.shardName}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 text-xs font-semibold rounded-md ${
-                      s.zoneTag === 'ZONE_HN' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                <tr key={s.shardId} className="hover:bg-slate-50/70 transition">
+                  <td className="px-5 py-3.5 font-semibold text-slate-900">{s.shardName}</td>
+                  <td className="px-5 py-3.5">
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${
+                      s.zoneTag === 'ZONE_HN' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
                     }`}>
                       {s.zoneTag}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-mono text-slate-700">{s.port}</td>
-                  <td className="px-6 py-4 font-semibold text-slate-800">{s.documentCount}</td>
-                  <td className="px-6 py-4 font-semibold text-slate-800">{s.percentage}%</td>
-                  <td className="px-6 py-4 text-slate-600">{s.dataSizeKb} KB</td>
-                  <td className="px-6 py-4 font-mono text-slate-700">{s.chunksCount} chunks</td>
-                  <td className="px-6 py-4">
-                    <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">
+                  <td className="px-5 py-3.5 font-mono text-slate-700">{s.port}</td>
+                  <td className="px-5 py-3.5 font-bold text-slate-800">{s.documentCount}</td>
+                  <td className="px-5 py-3.5 font-bold text-slate-800">{s.percentage}%</td>
+                  <td className="px-5 py-3.5 text-slate-600">{s.dataSizeKb} KB</td>
+                  <td className="px-5 py-3.5 font-mono text-slate-700">{s.chunksCount} chunks</td>
+                  <td className="px-5 py-3.5">
+                    <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                       {s.status}
                     </span>
                   </td>
