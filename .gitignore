@@ -70,4 +70,6 @@ build/
 *.docx
 *.doc
 *.txt
+scripts/generate_*.py
+scripts/*.bak
 

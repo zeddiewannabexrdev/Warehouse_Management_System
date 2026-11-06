@@ -17,7 +17,7 @@ netstat -aon | findstr :3000 | findstr LISTENING >nul
 if %ERRORLEVEL% equ 0 (
     echo [THONG BAO] He thong Web Frontend (Port 3000) da dang chay san.
     echo Dang mo trinh duyet den giao dien Web...
-    powershell -NoProfile -Command "Start-Process 'http://localhost:3000'"
+    start http://localhost:3000
     goto :HOAN_TAT
 )
 
@@ -36,7 +36,7 @@ ping 127.0.0.1 -n 3 >nul
 
 echo.
 echo [3/3] Dang mo trinh duyet Web tai http://localhost:3000 ...
-powershell -NoProfile -Command "Start-Process 'http://localhost:3000'"
+start http://localhost:3000
 
 :HOAN_TAT
 echo.
