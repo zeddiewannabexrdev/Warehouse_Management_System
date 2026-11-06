@@ -7,6 +7,7 @@ import { DashboardOverviewPage } from './pages/dashboard/DashboardOverviewPage';
 import { MaterialsPage } from './pages/materials/MaterialsPage';
 import { WarehouseMapPage } from './pages/warehouses/WarehouseMapPage';
 import { ProcurementPage } from './pages/procurement/ProcurementPage';
+import { InventoryPage } from './pages/inventory/InventoryPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 
@@ -52,7 +53,7 @@ export const App: React.FC = () => {
             <Route path="/warehouses" element={<WarehouseMapPage />} />
             <Route path="/procurement" element={<ProcurementPage />} />
             <Route path="/suppliers" element={<ProcurementPage />} />
-            <Route path="/inventory" element={<ModulePlaceholderPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/goods-receipts" element={<ModulePlaceholderPage />} />
             <Route path="/goods-issues" element={<ModulePlaceholderPage />} />
             <Route path="/stock-transfers" element={<ModulePlaceholderPage />} />
