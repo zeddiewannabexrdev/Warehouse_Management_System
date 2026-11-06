@@ -213,25 +213,20 @@ export const UsersManagementPage: React.FC = () => {
       )}
 
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">
-            <ShieldCheck className="w-4 h-4" />
-            HỆ THỐNG QUẢN TRỊ NỀN TẢNG
-          </div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Quản trị Người dùng & Phân quyền Đa chi nhánh
+            Quản trị Người dùng & Phân quyền Chi nhánh
           </h1>
           <p className="text-xs text-slate-500 mt-1 max-w-3xl">
-            Quản lý định danh nhân sự, phân bổ 5 vai trò hệ thống (RBAC) và xác lập ranh giới dữ liệu an toàn 
-            gắn liền với cấu trúc Zone Sharding của cụm MongoDB phân tán.
+            Quản lý định danh nhân sự, phân bổ 5 vai trò hệ thống (RBAC) và xác lập ranh giới dữ liệu an toàn gắn liền với từng chi nhánh.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => fetchUsers()}
-            className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 hover:border-slate-300 bg-white text-slate-700 text-xs font-medium rounded shadow-sm hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 hover:border-slate-300 bg-white text-slate-700 text-xs font-semibold rounded-lg shadow-2xs hover:bg-slate-50 transition-colors"
             title="Tải lại danh sách"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -244,7 +239,7 @@ export const UsersManagementPage: React.FC = () => {
                 setUserToEdit(null);
                 setIsUserModalOpen(true);
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium rounded shadow-sm transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>Thêm tài khoản</span>

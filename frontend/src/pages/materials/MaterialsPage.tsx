@@ -15,7 +15,6 @@ import {
   Eye,
   Edit2,
   Trash2,
-  Sparkles,
   Server,
   ChevronLeft,
   ChevronRight,
@@ -166,18 +165,13 @@ export const MaterialsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Quản lý Danh mục Vật tư & Lược đồ Đa hình
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Polymorphic Schema
-            </span>
-          </div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            Quản lý Danh mục Vật tư
+          </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Danh mục vật tư dùng chung toàn quốc (Global Reference Collection) lưu trữ tập trung trên Primary Shard
+            Danh mục vật tư dùng chung toàn quốc (Global Reference Collection) lưu trữ tập trung trên Primary Shard.
           </p>
         </div>
 
@@ -185,49 +179,29 @@ export const MaterialsPage: React.FC = () => {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="p-2 text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+            className="p-2 text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50"
             title="Làm mới dữ liệu"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={openCreateModal}
-            className="px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-1.5 shadow-sm"
+            className="px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1.5 shadow-2xs"
           >
             <Plus className="w-4 h-4" />
-            <span>Thêm Vật tư mới</span>
+            <span>Thêm vật tư</span>
           </button>
         </div>
       </div>
 
-      {/* Architecture Demonstration Banner */}
-      <div className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-xl p-4 shadow-sm border border-slate-800">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start space-x-3">
-            <div className="p-2.5 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">
-                  Đặc trưng Phân tán & Lược đồ Đa hình (Polymorphic Pattern)
-                </span>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.2 rounded font-mono">
-                  Collection: materials
-                </span>
-              </div>
-              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                Tất cả các chủng loại vật tư công nghiệp (Thép, Dây cáp, Xi măng, Sơn) được lưu chung một collection với trường <code className="text-amber-300 font-mono">specifications</code> động, giải phóng hệ thống khỏi hàng chục bảng SQL dư thừa. Collection được cấu hình <b>Global Unsharded</b> trên Primary Shard giúp tối ưu hóa truy vấn $lookup đa vùng.
-              </p>
-            </div>
-          </div>
-          <div className="shrink-0 flex items-center space-x-3 text-xs bg-white/5 px-3 py-2 rounded-lg border border-white/10">
-            <Server className="w-4 h-4 text-indigo-400" />
-            <div>
-              <span className="text-slate-400 block text-[10px]">Định vị & Nguồn dữ liệu:</span>
-              <span className="font-semibold text-emerald-300">{dataSource}</span>
-            </div>
-          </div>
+      {/* Info Bar */}
+      <div className="px-4 py-2.5 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-600">
+        <div className="flex items-center gap-2">
+          <Server className="w-4 h-4 text-slate-400 shrink-0" />
+          <span>Lược đồ đa hình (Polymorphic Schema) quản lý linh hoạt các thông số kỹ thuật đặc thù trong cùng một collection.</span>
+        </div>
+        <div className="font-mono text-[11px] text-slate-500 shrink-0">
+          Nguồn: <strong className="text-slate-700">{dataSource}</strong>
         </div>
       </div>
 

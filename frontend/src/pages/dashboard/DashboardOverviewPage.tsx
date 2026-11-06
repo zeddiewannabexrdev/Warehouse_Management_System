@@ -67,13 +67,13 @@ export const DashboardOverviewPage: React.FC = () => {
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Tổng quan Hệ thống Quản trị & Điều phối Kho (WMS)
+            Tổng quan Quản trị & Điều phối Kho (WMS)
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Theo dõi trạng thái phân tán, tồn kho khả dụng và cảnh báo định mức giữa các tổng kho vùng miền.
+            Theo dõi trạng thái phân tán, tồn kho khả dụng và cảnh báo định mức an toàn giữa các tổng kho vùng miền.
           </p>
         </div>
 
@@ -81,15 +81,15 @@ export const DashboardOverviewPage: React.FC = () => {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
             Làm mới
           </button>
         </div>
       </div>
 
-      <div className={`p-4 rounded border flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs ${
+      <div className={`p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs ${
         isDbConnected
           ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
           : 'bg-rose-50 border-rose-200 text-rose-900'
@@ -106,43 +106,43 @@ export const DashboardOverviewPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-slate-600">
-          <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
+        <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-600">
+          <span className="bg-white px-2.5 py-1 rounded border border-slate-200">
             Router: <strong>27017</strong>
           </span>
-          <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
+          <span className="bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 text-emerald-800">
             Zone HN: <strong>Shard 1 (27018)</strong>
           </span>
-          <span className="bg-white px-2 py-0.5 rounded border border-slate-200">
+          <span className="bg-blue-50 px-2.5 py-1 rounded border border-blue-200 text-blue-800">
             Zone HCM: <strong>Shard 2 (27020)</strong>
           </span>
         </div>
       </div>
 
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded text-xs text-rose-700">
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700">
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              Vật tư Toàn quốc
+            <span className="text-[11px] font-medium text-slate-500">
+              Vật tư toàn quốc
             </span>
             <Layers className="w-4 h-4 text-slate-400" />
           </div>
           <div className="text-2xl font-bold text-slate-900">
             {formatNumber(data?.metrics.totalMaterials || 0)}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1 font-mono">Unsharded (Primary)</div>
+          <div className="text-[10px] text-slate-400 mt-1 font-mono">Global Unsharded</div>
         </div>
 
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              Tổng kho Vùng miền
+            <span className="text-[11px] font-medium text-slate-500">
+              Tổng kho vùng miền
             </span>
             <Warehouse className="w-4 h-4 text-slate-400" />
           </div>
@@ -152,23 +152,23 @@ export const DashboardOverviewPage: React.FC = () => {
           <div className="text-[10px] text-slate-400 mt-1 font-mono">HN, HCM, DN</div>
         </div>
 
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              Mặt hàng Tồn kho
+            <span className="text-[11px] font-medium text-slate-500">
+              Mặt hàng tồn kho
             </span>
-            <Boxes className="w-4 h-4 text-brand-600" />
+            <Boxes className="w-4 h-4 text-blue-600" />
           </div>
-          <div className="text-2xl font-bold text-brand-700">
+          <div className="text-2xl font-bold text-blue-700">
             {formatNumber(data?.metrics.totalStockItems || 0)}
           </div>
           <div className="text-[10px] text-amber-700 mt-1 font-mono font-medium">Sharded Collection</div>
         </div>
 
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              Dưới Ngưỡng An toàn
+            <span className="text-[11px] font-medium text-slate-500">
+              Dưới ngưỡng an toàn
             </span>
             <AlertTriangle className="w-4 h-4 text-rose-500" />
           </div>
@@ -178,10 +178,10 @@ export const DashboardOverviewPage: React.FC = () => {
           <div className="text-[10px] text-rose-500 mt-1 font-mono">Cần mua bổ sung</div>
         </div>
 
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              Phiếu Nhập Chờ
+            <span className="text-[11px] font-medium text-slate-500">
+              Phiếu nhập chờ
             </span>
             <Truck className="w-4 h-4 text-slate-400" />
           </div>
@@ -191,10 +191,10 @@ export const DashboardOverviewPage: React.FC = () => {
           <div className="text-[10px] text-slate-400 mt-1 font-mono">Chờ nghiệm thu KCS</div>
         </div>
 
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              Phiếu Xuất Chờ
+            <span className="text-[11px] font-medium text-slate-500">
+              Phiếu xuất chờ
             </span>
             <ArrowUpRight className="w-4 h-4 text-slate-400" />
           </div>

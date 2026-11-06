@@ -106,9 +106,8 @@ export const InventoryPage: React.FC = () => {
   return (
     <div className="space-y-6 font-sans">
       <PageHero
-        eyebrow="Quản trị kho vật tư"
         title="Tồn kho & Cảnh báo An toàn"
-        description="Theo dõi lượng tồn thực tế, phần đã phân bổ cho công trình và những vật tư sắp chạm ngưỡng tối thiểu."
+        description="Theo dõi lượng tồn thực tế, phần đã phân bổ cho công trình và các vật tư chạm ngưỡng tối thiểu."
         refreshing={refreshing}
         onRefresh={() => {
           setRefreshing(true);

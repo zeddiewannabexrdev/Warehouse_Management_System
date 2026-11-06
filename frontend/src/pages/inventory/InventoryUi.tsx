@@ -101,13 +101,13 @@ export const BranchSwitcher: React.FC = () => {
   const lockedBranch = user?.branch && user.branch !== 'ALL' ? user.branch : null;
   if (lockedBranch) {
     return (
-      <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/10 text-sm font-semibold">
+      <span className="inline-flex items-center px-3 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
         Chi nhánh {BRANCH_NAME[lockedBranch] ?? lockedBranch}
       </span>
     );
   }
   return (
-    <div role="tablist" aria-label="Chọn chi nhánh" className="inline-flex gap-1 p-1 rounded-xl bg-white/10">
+    <div role="tablist" aria-label="Chọn chi nhánh" className="inline-flex gap-1 p-1 rounded-lg bg-slate-100 border border-slate-200">
       {SWITCH_OPTIONS.map((option) => {
         const active = activeBranch === option.code;
         return (
@@ -117,8 +117,8 @@ export const BranchSwitcher: React.FC = () => {
             aria-selected={active}
             onClick={() => setActiveBranch(option.code)}
             className={cn(
-              'px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-colors',
-              active ? 'bg-white text-brand-800 shadow-sm' : 'text-brand-100 hover:bg-white/10 hover:text-white',
+              'px-3 py-1 rounded-md text-xs font-semibold transition-colors',
+              active ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60',
             )}
           >
             {option.label}
@@ -130,33 +130,28 @@ export const BranchSwitcher: React.FC = () => {
 };
 
 export const PageHero: React.FC<{
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   description: string;
   refreshing?: boolean;
   onRefresh: () => void;
-}> = ({ eyebrow, title, description, refreshing, onRefresh }) => (
-  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 px-6 py-7 sm:px-8 text-white shadow-md">
-    <div className="absolute -right-16 -top-24 w-72 h-72 rounded-full bg-white/5" />
-    <div className="absolute right-32 -bottom-28 w-56 h-56 rounded-full bg-white/5" />
-    <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-      <div className="max-w-2xl">
-        <p className="text-xs font-semibold uppercase tracking-widest text-brand-300">{eyebrow}</p>
-        <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-2 text-sm text-brand-100/80 leading-relaxed">{description}</p>
-        <div className="mt-5">
-          <BranchSwitcher />
-        </div>
+}> = ({ title, description, refreshing, onRefresh }) => (
+  <div className="bg-white rounded-xl border border-slate-200 p-5 sm:p-6 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div className="max-w-2xl">
+      <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">{title}</h1>
+      <p className="mt-1 text-xs text-slate-500 leading-relaxed">{description}</p>
+      <div className="mt-3.5">
+        <BranchSwitcher />
       </div>
-      <button
-        onClick={onRefresh}
-        disabled={refreshing}
-        className="self-start lg:self-center inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-semibold transition-colors"
-      >
-        <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin')} />
-        Làm mới
-      </button>
     </div>
+    <button
+      onClick={onRefresh}
+      disabled={refreshing}
+      className="self-start lg:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors shadow-2xs"
+    >
+      <RefreshCw className={cn('w-3.5 h-3.5', refreshing && 'animate-spin text-blue-600')} />
+      Làm mới
+    </button>
   </div>
 );
 

@@ -205,26 +205,21 @@ export const WarehouseMapPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* 1. Header & Branch Switcher */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <WarehouseIcon className="w-5 h-5 text-brand-700" />
-              Bản đồ Tổng kho & Quản lý Ô kệ (Storage Locations)
-            </h1>
-            <span className="text-[10px] bg-brand-50 text-brand-700 border border-brand-200 px-2 py-0.5 rounded font-mono font-medium">
-              ZONE SHARDING
-            </span>
-          </div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <WarehouseIcon className="w-5 h-5 text-blue-600" />
+            Bản đồ Tổng kho & Quản lý Ô kệ
+          </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Mặt bằng 2D phân bổ ô kệ kho bãi, theo dõi tải trọng và minh chứng kỹ thuật định tuyến truy vấn phân tán.
+            Mặt bằng phân bổ vị trí ô kệ kho bãi, theo dõi tải trọng vật tư và trạng thái lưu kho thực tế.
           </p>
         </div>
 
         {/* Action Controls & Warehouse Dropdown */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center bg-white border border-slate-300 rounded px-2.5 py-1.5 shadow-2xs">
-            <span className="text-xs text-slate-500 mr-2 font-medium">Chọn Tổng kho:</span>
+          <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
+            <span className="text-xs text-slate-500 mr-2 font-medium">Tổng kho:</span>
             <select
               value={selectedWhCode}
               onChange={(e) => setSelectedWhCode(e.target.value)}
@@ -240,26 +235,26 @@ export const WarehouseMapPage: React.FC = () => {
 
           <button
             onClick={handleScatterGatherSearch}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded text-xs font-medium transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
           >
-            <Cpu className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Tìm ô trống toàn quốc (Scatter-Gather)</span>
+            <Cpu className="w-3.5 h-3.5 text-blue-600" />
+            <span>Tìm ô trống toàn quốc</span>
           </button>
 
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="p-1.5 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded transition-colors cursor-pointer"
+            className="p-1.5 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs"
             title="Làm mới dữ liệu"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-brand-600' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* Thông báo lỗi nếu có */}
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded flex items-center justify-between text-xs text-rose-800 animate-fadeIn">
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center justify-between text-xs text-rose-800 animate-fadeIn">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>{error}</span>
@@ -272,7 +267,7 @@ export const WarehouseMapPage: React.FC = () => {
 
       {/* Thông báo thành công nếu có */}
       {actionSuccessMsg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded flex items-center justify-between text-xs text-emerald-800 animate-fadeIn">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between text-xs text-emerald-800 animate-fadeIn">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{actionSuccessMsg}</span>
@@ -283,38 +278,36 @@ export const WarehouseMapPage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Routing Indicator Badge & Distributed Specs */}
-      <div className="bg-slate-900 text-slate-200 rounded p-4 border border-slate-800 shadow-md">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded bg-brand-600/30 border border-brand-500/50 flex items-center justify-center text-brand-400">
-              <Server className="w-5 h-5" />
+      {/* 2. Routing Indicator Status Bar */}
+      <div className="bg-slate-50 text-slate-700 rounded-lg p-3 border border-slate-200 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0">
+            <Server className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-900 text-xs">
+                Định tuyến MongoS: Targeted Query
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                {mapData?.routing?.winningStage || 'SINGLE_SHARD'}
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-white tracking-wide uppercase text-[11px] font-mono">
-                  ĐỊNH TUYẾN MONGOS: TARGETED QUERY
-                </span>
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-950/80 text-emerald-400 border border-emerald-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {mapData?.routing?.winningStage || 'SINGLE_SHARD'}
-                </span>
-              </div>
-              <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                ⚡ Phục vụ bởi: <strong className="text-amber-300">{mapData?.routing?.executingShard || currentWarehouse?.assignedShard}</strong> ({currentWarehouse?.zoneTag})
-              </div>
+            <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+              Phục vụ bởi: <strong className="text-slate-800">{mapData?.routing?.executingShard || currentWarehouse?.assignedShard}</strong> ({currentWarehouse?.zoneTag})
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-6 border-t md:border-t-0 pt-2 md:pt-0 border-slate-800 text-[11px] font-mono">
-            <div>
-              <span className="text-slate-400">Thời gian phản hồi:</span>{' '}
-              <strong className="text-emerald-400">{mapData?.routing?.executionTimeMs || 8} ms</strong>
-            </div>
-            <div>
-              <span className="text-slate-400">Số Shards tham gia:</span>{' '}
-              <strong className="text-white">{mapData?.routing?.shardsContacted || 1} / 2</strong>
-            </div>
+        <div className="flex items-center gap-6 border-t md:border-t-0 pt-2 md:pt-0 border-slate-200 text-[11px] font-mono text-slate-600">
+          <div>
+            <span className="text-slate-500">Thời gian phản hồi:</span>{' '}
+            <strong className="text-emerald-700">{mapData?.routing?.executionTimeMs || 8} ms</strong>
+          </div>
+          <div>
+            <span className="text-slate-500">Số Shard:</span>{' '}
+            <strong className="text-slate-900">{mapData?.routing?.shardsContacted || 1} / 2</strong>
           </div>
         </div>
       </div>

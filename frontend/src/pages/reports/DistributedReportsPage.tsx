@@ -118,18 +118,13 @@ export const DistributedReportsPage: React.FC = () => {
   return (
     <div className="space-y-6 font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Báo cáo Thống kê Phân tán & Định giá Tồn kho (Module A9)
-            </h1>
-            <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-mono font-semibold">
-              $FACET & FIFO VALUATION
-            </span>
-          </div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            Báo cáo Thống kê & Định giá Tồn kho
+          </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Tổng hợp dữ liệu đa chiều bằng Aggregation Pipelines ($facet, $lookup) và định giá tài sản tồn kho theo chuẩn kế toán FIFO / Bình quân gia quyền.
+            Tổng hợp dữ liệu đa chiều bằng Aggregation Pipelines và định giá tài sản tồn kho theo chuẩn kế toán FIFO / Bình quân gia quyền.
           </p>
         </div>
 
@@ -139,30 +134,30 @@ export const DistributedReportsPage: React.FC = () => {
             fetchAllReports();
           }}
           disabled={refreshing}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded transition-colors self-start"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs self-start sm:self-center"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-          Chạy lại Pipeline
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
+          Làm mới báo cáo
         </button>
       </div>
 
-      {/* Distributed Query Optimizer & Execution Telemetry */}
-      <div className="bg-[#0e1726] text-slate-200 rounded border border-slate-800 p-4 space-y-2">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      {/* Distributed Query Status Bar */}
+      <div className="bg-slate-50 text-slate-700 rounded-lg border border-slate-200 p-3 text-xs space-y-1.5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Server className="w-4 h-4 text-sky-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-white font-mono">
-              Chiến lược Thực thi Truy vấn Phân tán: {telemetry?.execution_mode}
+            <Server className="w-4 h-4 text-blue-600" />
+            <span className="font-semibold text-slate-900">
+              Chiến lược thực thi: {telemetry?.execution_mode || 'PARALLEL_SHARD_AGGREGATION'}
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 font-mono">
+            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-medium">
               {telemetry?.execution_time_ms || 4} ms
             </span>
           </div>
-          <div className="font-mono text-[11px] text-amber-300">
-            Stage: {telemetry?.winning_plan_stage}
+          <div className="font-mono text-[11px] text-slate-500">
+            Stage: <strong className="text-slate-800">{telemetry?.winning_plan_stage || 'SHARD_MERGE'}</strong>
           </div>
         </div>
-        <p className="text-xs text-slate-400">{telemetry?.optimization_note}</p>
+        <p className="text-[11px] text-slate-500">{telemetry?.optimization_note || 'Pipeline phân tán thực thi song song trên các Shard và gộp kết quả tại Router.'}</p>
       </div>
 
       {errorMsg && (

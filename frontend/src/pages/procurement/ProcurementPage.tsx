@@ -229,26 +229,21 @@ export const ProcurementPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* 1. Header & Branch Selection */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-indigo-700" />
-              Quản lý Nhà cung cấp & Mua sắm (Suppliers & Procurement)
-            </h1>
-            <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-mono font-medium">
-              HYBRID DISTRIBUTION
-            </span>
-          </div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-blue-600" />
+            Quản lý Nhà cung cấp & Mua sắm
+          </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Quản trị danh bạ đối tác cung ứng, hợp đồng nguyên tắc, lập đơn PO chi nhánh với giao dịch phân tán ACID.
+            Quản trị danh bạ đối tác cung ứng, hợp đồng nguyên tắc và lập đơn mua hàng (PO) phân tán theo chi nhánh.
           </p>
         </div>
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center bg-white border border-slate-300 rounded px-2.5 py-1.5 shadow-2xs">
-            <span className="text-xs text-slate-500 mr-2 font-medium">Chi nhánh tiếp nhận:</span>
+          <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
+            <span className="text-xs text-slate-500 mr-2 font-medium">Chi nhánh:</span>
             <select
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
@@ -269,19 +264,19 @@ export const ProcurementPage: React.FC = () => {
               }));
               setIsCreatePOModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-colors shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Lập Đơn mua hàng (ACID)</span>
+            <span>Lập đơn mua hàng</span>
           </button>
 
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="p-1.5 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded transition-colors cursor-pointer"
+            className="p-1.5 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs"
             title="Làm mới dữ liệu"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-indigo-600' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
           </button>
         </div>
       </div>

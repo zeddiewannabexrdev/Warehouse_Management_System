@@ -198,16 +198,11 @@ export const StocktakesPage: React.FC = () => {
   return (
     <div className="space-y-6 font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Kiểm kê Kho & Đối soát Dữ liệu Thực tế (Module A8)
-            </h1>
-            <span className="text-[10px] bg-brand-50 text-brand-700 border border-brand-200 px-2 py-0.5 rounded font-mono font-semibold">
-              DATA RECONCILIATION
-            </span>
-          </div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            Kiểm kê Kho & Đối soát Tồn kho Thực tế
+          </h1>
           <p className="text-xs text-slate-500 mt-1">
             Chụp nhanh tồn kho từ Shard chi nhánh, đối chiếu số lượng kiểm đếm thực tế tại ô kệ và điều chỉnh số dư nguyên tử.
           </p>
@@ -220,7 +215,7 @@ export const StocktakesPage: React.FC = () => {
               fetchStocktakes();
             }}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             Làm mới
@@ -228,32 +223,30 @@ export const StocktakesPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('WORKSHEET')}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            Mở Bảng Kiểm đếm Thực tế Mới
+            Lập bảng kiểm đếm mới
           </button>
         </div>
       </div>
 
-      {/* Distributed Routing Telemetry */}
-      <div className="bg-[#0e1726] text-slate-200 rounded border border-slate-800 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Server className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-white font-mono">
-              Định tuyến Đối soát Tồn kho: {routing?.routing_type || 'SINGLE_SHARD_TARGETED'}
-            </span>
+      {/* Distributed Status Bar */}
+      <div className="bg-slate-50 text-slate-700 rounded-lg border border-slate-200 p-3 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2 font-semibold text-slate-900">
+            <Server className="w-4 h-4 text-blue-600" />
+            <span>Định tuyến đối soát tồn kho: Single-Shard Targeted Query</span>
           </div>
-          <p className="text-xs text-slate-400">{routing?.description}</p>
+          <p className="text-[11px] text-slate-500">{routing?.description || 'Truy vấn định tuyến trực tiếp vào Shard chi nhánh tương ứng.'}</p>
         </div>
-        <div className="flex items-center gap-3 font-mono text-[11px]">
-          <div className="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-300">
-            Node: <strong className="text-emerald-400">{routing?.executing_shard}</strong>
-          </div>
-          <div className="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-300">
-            Latency: <strong className="text-amber-300">{routing?.execution_time_ms || 2} ms</strong>
-          </div>
+        <div className="flex items-center gap-2 font-mono text-[11px]">
+          <span className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700">
+            Node: <strong className="text-emerald-700">{routing?.executing_shard || 'Shard 1'}</strong>
+          </span>
+          <span className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700">
+            Độ trễ: <strong className="text-blue-700">{routing?.execution_time_ms || 2} ms</strong>
+          </span>
         </div>
       </div>
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import {
-  Database,
   Server,
   Network,
   Cpu,
@@ -75,42 +74,28 @@ export const BranchesConfigPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-2 text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">
-          <Database className="w-4 h-4" />
-          HỆ THỐNG QUẢN TRỊ NỀN TẢNG
-        </div>
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-          Cấu hình Chi nhánh & Ánh xạ Vùng phân tán (Zone Sharding)
+          Cấu hình Chi nhánh & Ánh xạ Vùng phân tán
         </h1>
         <p className="text-xs text-slate-500 mt-1 max-w-3xl">
-          Định nghĩa thông tin mạng lưới kho bãi toàn quốc và cơ chế ánh xạ từng chi nhánh vào các Node Shard 
-          vật lý trong cụm MongoDB Sharded Cluster.
+          Định nghĩa thông tin mạng lưới kho bãi toàn quốc và cơ chế ánh xạ từng chi nhánh vào các Node Shard vật lý trong cụm MongoDB.
         </p>
       </div>
 
-      {/* Concept Architecture Card */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-lg shadow-md border border-slate-700">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase bg-brand-500/20 text-brand-300 border border-brand-400/30 px-2 py-0.5 rounded">
-              Distributed Geo-Zone Sharding Architecture
-            </span>
-            <h3 className="text-base font-semibold text-white">
-              Cơ chế Định tuyến Truy vấn theo Chi nhánh (Targeted Routing)
-            </h3>
-            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-              Mỗi nhân sự thuộc chi nhánh nào khi phát sinh các giao dịch vật tư (nhập, xuất, kiểm kê tồn) sẽ mang 
-              theo khóa phân mảnh <code className="text-amber-300 font-mono">warehouse_branch</code>. Mongos Router 
-              sẽ căn cứ vào Zone Shard Ranges để chuyển tiếp trực tiếp đến Shard lưu trữ của chi nhánh đó, 
-              tránh quét toàn bộ các Shard (Scatter-Gather).
-            </p>
+      {/* Concept Architecture Info Bar */}
+      <div className="bg-slate-50 text-slate-700 p-4 rounded-lg border border-slate-200 text-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 font-semibold text-slate-900">
+            <Server className="w-4 h-4 text-blue-600" />
+            <span>Định tuyến truy vấn theo chi nhánh (Targeted Routing)</span>
           </div>
-          <div className="p-3 bg-slate-800/80 rounded border border-slate-700 text-center shrink-0">
-            <span className="block text-[11px] text-slate-400">Mongos Router Port</span>
-            <span className="text-lg font-bold font-mono text-emerald-400">27017</span>
-            <span className="block text-[10px] text-slate-400">Unified Gateway</span>
-          </div>
+          <p className="text-[11px] text-slate-500 max-w-2xl leading-relaxed">
+            Mỗi nhân sự khi phát sinh giao dịch mang theo khóa phân mảnh <code>warehouse_branch</code>. Router tự động chuyển tiếp trực tiếp đến Shard lưu trữ tương ứng.
+          </p>
+        </div>
+        <div className="px-3 py-1.5 bg-white rounded border border-slate-200 text-center shrink-0 font-mono text-[11px]">
+          <span className="text-slate-500">Router Port:</span> <strong className="text-emerald-700">27017</strong>
         </div>
       </div>
 

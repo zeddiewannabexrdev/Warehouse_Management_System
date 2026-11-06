@@ -243,18 +243,13 @@ export const StockTransfersPage: React.FC = () => {
   return (
     <div className="space-y-6 font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Điều phối & Luân chuyển Vật tư Liên kho (Module A7)
-            </h1>
-            <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-mono font-semibold">
-              CROSS-ZONE SHARDING
-            </span>
-          </div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            Điều phối & Luân chuyển Vật tư Liên kho
+          </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Điều phối luân chuyển vật tư giữa Tổng kho Miền Bắc (Shard 1 - ZONE_HN) và Tổng kho Miền Nam (Shard 2 - ZONE_HCM) kèm thu hồi vật tư công trình.
+            Điều phối luân chuyển vật tư giữa Tổng kho Miền Bắc (Shard 1 - Hà Nội) và Tổng kho Miền Nam (Shard 2 - TP.HCM) kèm thu hồi công trình.
           </p>
         </div>
 
@@ -265,7 +260,7 @@ export const StockTransfersPage: React.FC = () => {
               fetchAllData();
             }}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             Làm mới
@@ -274,51 +269,44 @@ export const StockTransfersPage: React.FC = () => {
           {activeTab === 'TRANSFERS' ? (
             <button
               onClick={() => setShowDispatchModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
-              Lập Lệnh Điều chuyển Liên kho
+              Lập lệnh điều chuyển
             </button>
           ) : (
             <button
               onClick={() => setShowReturnModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
-              Lập Phiếu Thu hồi Công trình
+              Lập phiếu thu hồi
             </button>
           )}
         </div>
       </div>
 
-      {/* Cross-Zone Distributed Telemetry Panel */}
-      <div className="bg-[#0e1726] text-slate-200 rounded border border-slate-800 p-4 shadow-2xs">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Server className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-bold uppercase tracking-wider text-white font-mono">
-                Cơ chế Luân chuyển Dữ liệu Liên vùng (Cross-Zone Data Coordination)
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-brand-900/80 text-brand-200 border border-brand-700 font-mono">
-                {routing?.routing_type || 'SCATTER_GATHER_CROSS_ZONE'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-400">{routing?.description}</p>
+      {/* Cross-Zone Status Bar */}
+      <div className="bg-slate-50 text-slate-700 rounded-lg border border-slate-200 p-3 text-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2 font-semibold text-slate-900">
+            <Server className="w-4 h-4 text-blue-600" />
+            <span>Cơ chế điều phối dữ liệu liên vùng (Cross-Zone Sharding)</span>
           </div>
+          <p className="text-[11px] text-slate-500">{routing?.description || 'Giao dịch ACID 2 pha bảo đảm cân bằng tồn kho tức thời giữa 2 Shard.'}</p>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-2 font-mono text-[11px]">
-            <div className="px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-emerald-300">
-              Shard 1: ZONE_HN (27018)
-            </div>
-            <ArrowLeftRight className="w-4 h-4 text-amber-400" />
-            <div className="px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-sky-300">
-              Mongos Router (27017)
-            </div>
-            <ArrowLeftRight className="w-4 h-4 text-amber-400" />
-            <div className="px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-amber-300">
-              Shard 2: ZONE_HCM (27020)
-            </div>
+        <div className="flex flex-wrap items-center gap-2 font-mono text-[11px]">
+          <div className="px-2.5 py-1 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
+            Shard 1: Hà Nội (27018)
+          </div>
+          <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400" />
+          <div className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700">
+            Router (27017)
+          </div>
+          <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400" />
+          <div className="px-2.5 py-1 rounded bg-blue-50 border border-blue-200 text-blue-800 font-semibold">
+            Shard 2: TP.HCM (27020)
           </div>
         </div>
       </div>
