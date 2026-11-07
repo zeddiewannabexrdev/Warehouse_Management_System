@@ -191,10 +191,10 @@ export const Sidebar: React.FC = () => {
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    `flex items-center justify-between px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                        ? 'bg-blue-600 text-white font-medium shadow-2xs'
+                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                     }`
                   }
                 >

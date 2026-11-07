@@ -16,6 +16,84 @@
   }
 }
 
+@layer components {
+  /* High-Density Data Table Classes */
+  .data-table {
+    @apply w-full text-left text-xs border-collapse;
+  }
+  .data-table thead tr {
+    @apply bg-slate-50 border-b border-slate-200 text-slate-500 font-medium;
+  }
+  .data-table th {
+    @apply py-2 px-3 text-[11px] font-medium uppercase tracking-wider text-slate-600;
+  }
+  .data-table th.num, .data-table td.num {
+    @apply text-right font-mono tabular-nums;
+  }
+  .data-table tbody tr {
+    @apply border-b border-slate-100 hover:bg-slate-50/70 transition-colors;
+  }
+  .data-table td {
+    @apply py-2 px-3 text-slate-800 leading-tight;
+  }
+
+  /* Compact Telemetry Metric Strip (Replaces bloated 6-KPI cards) */
+  .metric-strip {
+    @apply bg-white border border-slate-200 rounded-md flex flex-wrap md:flex-nowrap divide-y md:divide-y-0 md:divide-x divide-slate-200 overflow-hidden;
+  }
+  .metric-item {
+    @apply flex-1 min-w-[130px] px-3.5 py-2.5 flex flex-col justify-between hover:bg-slate-50/50 transition-colors;
+  }
+  .metric-label {
+    @apply text-[10px] uppercase font-mono font-medium tracking-wider text-slate-500;
+  }
+  .metric-value {
+    @apply text-lg font-bold font-mono text-slate-900 tabular-nums leading-tight mt-0.5;
+  }
+  .metric-sub {
+    @apply text-[10px] font-mono text-slate-400 mt-0.5 truncate;
+  }
+
+  /* Flat Surface Panel */
+  .panel-flat {
+    @apply bg-white border border-slate-200 rounded-md overflow-hidden;
+  }
+  .panel-header {
+    @apply px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-white;
+  }
+
+  /* Status Dot (Minimalist technical status indicator replacing puffy pill badges) */
+  .status-dot-wrapper {
+    @apply inline-flex items-center gap-1.5 text-[11px] font-mono font-medium leading-none;
+  }
+  .status-dot {
+    @apply w-1.5 h-1.5 rounded-full shrink-0;
+  }
+  .status-dot-success {
+    @apply bg-emerald-500 text-emerald-800;
+  }
+  .status-dot-warning {
+    @apply bg-amber-500 text-amber-800;
+  }
+  .status-dot-danger {
+    @apply bg-rose-500 text-rose-800;
+  }
+  .status-dot-info {
+    @apply bg-blue-500 text-blue-800;
+  }
+  .status-dot-neutral {
+    @apply bg-slate-400 text-slate-700;
+  }
+
+  /* Clean Operate-mode Buttons */
+  .btn-action-primary {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition-colors shadow-2xs;
+  }
+  .btn-action-secondary {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-md transition-colors shadow-2xs;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
