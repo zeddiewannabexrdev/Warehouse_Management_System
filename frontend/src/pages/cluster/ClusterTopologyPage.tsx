@@ -2,16 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import {
-  Network,
-  Server,
-  Database,
   RefreshCw,
-  CheckCircle2,
+  Server,
   Layers,
-  ArrowRight,
-  Cpu,
-  Radio,
+  Terminal,
 } from 'lucide-react';
+import { MetricStrip, MetricItemProps } from '../../components/common/MetricStrip';
 
 interface TopologyNode {
   id: string;
@@ -44,18 +40,18 @@ export const ClusterTopologyPage: React.FC = () => {
   const [data, setData] = useState<TopologyData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [selectedNode, setSelectedNode] = useState<TopologyNode | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string>('mongos-router');
 
   const fetchTopology = async () => {
     try {
       setRefreshing(true);
       const res = await api.get<TopologyData>('/cluster/topology');
       setData(res);
-      if (res.nodes && res.nodes.length > 0 && !selectedNode) {
-        setSelectedNode(res.nodes[0]);
+      if (res.nodes && res.nodes.length > 0 && !selectedNodeId) {
+        setSelectedNodeId(res.nodes[0].id);
       }
     } catch {
-      // Handled by api error toast
+      // Handled by API interceptor
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -74,316 +70,353 @@ export const ClusterTopologyPage: React.FC = () => {
     );
   }
 
-  const routerNode = data?.nodes.find((n) => n.role === 'QUERY_ROUTER');
-  const configNode = data?.nodes.find((n) => n.role === 'CONFIG_SERVER');
-  const shard1Node = data?.nodes.find((n) => n.id === 'shard-01-hn');
-  const shard2Node = data?.nodes.find((n) => n.id === 'shard-02-hcm');
+  const selectedNode = data?.nodes.find((n) => n.id === selectedNodeId) || data?.nodes[0];
+
+  const metricItems: MetricItemProps[] = [
+    {
+      label: 'Query Router',
+      value: 'Port 27017',
+      subText: 'Mongos Routing Gateway',
+      status: 'info',
+    },
+    {
+      label: 'Config Server',
+      value: 'Port 27019',
+      subText: 'configsvr (configReplSet)',
+      status: 'neutral',
+    },
+    {
+      label: 'Shard 1 (Zone HN)',
+      value: 'Port 27018',
+      subText: 'vattu-shard1 (shard1ReplSet)',
+      status: 'success',
+    },
+    {
+      label: 'Shard 2 (Zone HCM)',
+      value: 'Port 27020',
+      subText: 'vattu-shard2 (shard2ReplSet)',
+      status: 'success',
+    },
+    {
+      label: 'Kiến Trúc Phân Mảnh',
+      value: 'Zone Sharding',
+      subText: 'Range-based Locality',
+      status: 'neutral',
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Kiến Trúc Cụm Phân Tán (Cluster Topology)
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Cụm Đang Hoạt Động
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Mô hình phân mảnh ngang đa vùng: Mongos Router (Port 27017), Config Server (Port 27019) và 2 Zone Shards vật lý.
-          </p>
+    <div className="space-y-3 font-sans">
+      {/* 1. Top Bar Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-200">
+        <div className="flex items-center gap-2.5">
+          <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
+            MODULE 11
+          </span>
+          <h1 className="text-base font-semibold text-slate-900 tracking-tight">
+            Kiến Trúc Cụm Phân Tán (Cluster Topology)
+          </h1>
+          <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+            cluster: "{data?.clusterName || 'distributed-material-cluster'}"
+          </span>
         </div>
+
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-mono text-slate-600 mr-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>Topology:</span>
+            <strong className="text-slate-800">ShardedCluster (2 Shards)</strong>
+          </div>
+
           <button
             onClick={fetchTopology}
             disabled={refreshing}
-            className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-md transition-colors cursor-pointer"
+            title="Kiểm tra kết nối toàn bộ nodes"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-            Kiểm tra kết nối
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
+            <span>Ping Cụm</span>
           </button>
         </div>
       </div>
 
-      {/* Cluster Stats Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-1.5">
-            <span className="text-xs font-medium">Query Router</span>
-            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Network className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-lg font-bold text-slate-800">Mongos : 27017</div>
-          <p className="text-[11px] text-slate-500 mt-0.5">Tiếp nhận và điều phối 100% request</p>
+      {/* 2. Telemetry Metric Strip */}
+      <MetricStrip items={metricItems} />
+
+      {/* 3. Compact Architecture Flow Pipeline */}
+      <div className="p-3 bg-white border border-slate-200 rounded-md">
+        <div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center justify-between">
+          <span>Luồng Định Tuyến Dữ Liệu (Data Locality Pipeline)</span>
+          <span className="text-slate-400 font-normal">Bấm vào node để xem chi tiết thông số</span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-1.5">
-            <span className="text-xs font-medium">Config Server</span>
-            <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-              <Database className="w-4 h-4" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-center text-xs font-mono">
+          {/* Client Application */}
+          <div className="p-2.5 bg-slate-50 border border-slate-200 rounded text-center">
+            <div className="text-[10px] uppercase font-bold text-slate-500">CLIENT LAYER</div>
+            <div className="font-bold text-slate-900 mt-0.5">Frontend + NestJS</div>
+            <div className="text-[10px] text-slate-400">Port 5000 / 3000</div>
+          </div>
+
+          {/* Router */}
+          <div
+            onClick={() => setSelectedNodeId('mongos-router')}
+            className={`p-2.5 border rounded cursor-pointer transition-colors text-center ${
+              selectedNodeId === 'mongos-router'
+                ? 'bg-blue-50/70 border-blue-400 text-blue-900 ring-1 ring-blue-300'
+                : 'bg-white border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-blue-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              ROUTER (MONGOS)
             </div>
+            <div className="font-bold text-slate-900 mt-0.5">vattu-mongos:27017</div>
+            <div className="text-[10px] text-slate-500">Targeted Query Engine</div>
           </div>
-          <div className="text-lg font-bold text-slate-800">configsvr : 27019</div>
-          <p className="text-[11px] text-slate-500 mt-0.5">Lưu trữ Metadata & Bảng Chunks</p>
-        </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-1.5">
-            <span className="text-xs font-medium">Shard 1 (Zone HN)</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Server className="w-4 h-4" />
+          {/* Config Server */}
+          <div
+            onClick={() => setSelectedNodeId('config-server')}
+            className={`p-2.5 border rounded cursor-pointer transition-colors text-center ${
+              selectedNodeId === 'config-server'
+                ? 'bg-purple-50/70 border-purple-400 text-purple-900 ring-1 ring-purple-300'
+                : 'bg-white border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-1 text-[10px] uppercase font-bold text-purple-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              CONFIG METADATA
             </div>
+            <div className="font-bold text-slate-900 mt-0.5">configsvr:27019</div>
+            <div className="text-[10px] text-slate-500">Chunk & Zone Ranges</div>
           </div>
-          <div className="text-lg font-bold text-slate-800">vattu-shard1 : 27018</div>
-          <p className="text-[11px] text-emerald-600 font-medium mt-0.5">Tổng kho Miền Bắc (Hà Nội)</p>
-        </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-1.5">
-            <span className="text-xs font-medium">Shard 2 (Zone HCM)</span>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Server className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-lg font-bold text-slate-800">vattu-shard2 : 27020</div>
-          <p className="text-[11px] text-amber-600 font-medium mt-0.5">Tổng kho Miền Nam (TP.HCM)</p>
-        </div>
-      </div>
-
-      {/* Visual Cluster Topology Flow */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
-        <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
-          <div>
-            <h2 className="text-base font-bold text-slate-800">Sơ Đồ Luồng Định Tuyến Cụm Phân Tán</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Chọn từng node để xem chi tiết thông số kỹ thuật</p>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
-            <Radio className="w-3.5 h-3.5 text-emerald-500" />
-            Range-based Zone Sharding
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-          {/* Client & Router Column */}
-          <div className="flex flex-col justify-between space-y-4">
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
-              <div className="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
-                APP
+          {/* Shards Stack */}
+          <div className="flex flex-col gap-1.5">
+            <div
+              onClick={() => setSelectedNodeId('shard-01-hn')}
+              className={`p-1.5 border rounded cursor-pointer transition-colors flex items-center justify-between ${
+                selectedNodeId === 'shard-01-hn'
+                  ? 'bg-emerald-50 border-emerald-400 text-emerald-900 ring-1 ring-emerald-300'
+                  : 'bg-white border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="font-bold text-[11px]">Shard 1 (HN)</span>
               </div>
-              <h3 className="font-bold text-slate-800 text-xs">Client Web Application</h3>
-              <p className="text-[11px] text-slate-500">React Frontend + NestJS Gateway (Port 5000)</p>
-            </div>
-
-            <div className="flex justify-center text-slate-300">
-              <ArrowRight className="w-4 h-4 rotate-90" />
+              <span className="text-[10px] text-slate-500">Port 27018</span>
             </div>
 
-            {/* Mongos Router Node */}
-            {routerNode && (
-              <div
-                onClick={() => setSelectedNode(routerNode)}
-                className={`p-4 rounded-xl border cursor-pointer transition ${
-                  selectedNode?.id === routerNode.id
-                    ? 'border-blue-500 bg-blue-50/40 ring-2 ring-blue-100'
-                    : 'border-slate-200 hover:border-blue-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-700">
-                    ROUTER
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
-                    <CheckCircle2 className="w-3 h-3" /> ONLINE
-                  </span>
-                </div>
-                <h4 className="font-bold text-slate-900 text-sm">{routerNode.name}</h4>
-                <div className="text-xs text-slate-500 mt-1">Cổng dịch vụ: <span className="font-semibold text-slate-800">{routerNode.port}</span></div>
-                <div className="text-xs text-slate-500">Container: <span className="font-mono text-slate-700">{routerNode.containerName}</span></div>
+            <div
+              onClick={() => setSelectedNodeId('shard-02-hcm')}
+              className={`p-1.5 border rounded cursor-pointer transition-colors flex items-center justify-between ${
+                selectedNodeId === 'shard-02-hcm'
+                  ? 'bg-amber-50 border-amber-400 text-amber-900 ring-1 ring-amber-300'
+                  : 'bg-white border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="font-bold text-[11px]">Shard 2 (HCM)</span>
               </div>
-            )}
-          </div>
-
-          {/* Config Server Column */}
-          <div className="flex flex-col justify-center">
-            {configNode && (
-              <div
-                onClick={() => setSelectedNode(configNode)}
-                className={`p-4 rounded-xl border cursor-pointer transition ${
-                  selectedNode?.id === configNode.id
-                    ? 'border-purple-500 bg-purple-50/40 ring-2 ring-purple-100'
-                    : 'border-slate-200 hover:border-purple-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700">
-                    METADATA CATALOG
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
-                    <CheckCircle2 className="w-3 h-3" /> ONLINE
-                  </span>
-                </div>
-                <h4 className="font-bold text-slate-900 text-sm">{configNode.name}</h4>
-                <div className="text-xs text-slate-500 mt-1">Cổng dịch vụ: <span className="font-semibold text-slate-800">{configNode.port}</span></div>
-                <div className="text-xs text-slate-500">Replica Set: <span className="font-semibold text-slate-700">{configNode.replicaSet}</span></div>
-                <p className="text-[11px] text-slate-500 mt-2 bg-slate-50 p-2 rounded-lg">Cung cấp bảng định tuyến Chunks và quy tắc Zone Tags cho Router</p>
-              </div>
-            )}
-          </div>
-
-          {/* Shard Nodes Column */}
-          <div className="flex flex-col justify-between space-y-4">
-            {/* Shard 1 Card */}
-            {shard1Node && (
-              <div
-                onClick={() => setSelectedNode(shard1Node)}
-                className={`p-4 rounded-xl border cursor-pointer transition ${
-                  selectedNode?.id === shard1Node.id
-                    ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-100'
-                    : 'border-slate-200 hover:border-emerald-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800">
-                    ZONE_HN (Miền Bắc)
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
-                    <CheckCircle2 className="w-3 h-3" /> ONLINE
-                  </span>
-                </div>
-                <h4 className="font-bold text-slate-900 text-sm">{shard1Node.name}</h4>
-                <div className="text-xs text-slate-500 mt-1">Cổng: <span className="font-semibold text-slate-800">{shard1Node.port}</span> | Host: <span className="font-mono text-slate-700">{shard1Node.containerName}</span></div>
-                <div className="text-[11px] text-emerald-700 font-medium mt-1">Shard Key: warehouse_branch = "HN"</div>
-              </div>
-            )}
-
-            {/* Shard 2 Card */}
-            {shard2Node && (
-              <div
-                onClick={() => setSelectedNode(shard2Node)}
-                className={`p-4 rounded-xl border cursor-pointer transition ${
-                  selectedNode?.id === shard2Node.id
-                    ? 'border-amber-500 bg-amber-50/40 ring-2 ring-amber-100'
-                    : 'border-slate-200 hover:border-amber-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800">
-                    ZONE_HCM (Miền Nam)
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
-                    <CheckCircle2 className="w-3 h-3" /> ONLINE
-                  </span>
-                </div>
-                <h4 className="font-bold text-slate-900 text-sm">{shard2Node.name}</h4>
-                <div className="text-xs text-slate-500 mt-1">Cổng: <span className="font-semibold text-slate-800">{shard2Node.port}</span> | Host: <span className="font-mono text-slate-700">{shard2Node.containerName}</span></div>
-                <div className="text-[11px] text-amber-700 font-medium mt-1">Shard Key: warehouse_branch = "HCM"</div>
-              </div>
-            )}
+              <span className="text-[10px] text-slate-500">Port 27020</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Selected Node Details & Sharding Policy */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Node Technical Spec */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100">
-            <Cpu className="w-4 h-4 text-blue-600" />
-            <h3 className="font-bold text-slate-800 text-sm">Thông Số Kỹ Thuật Node Đang Chọn</h3>
+      {/* 4. High-Density Node Status Table */}
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <Server className="w-3.5 h-3.5 text-slate-600" />
+            <h2 className="font-semibold text-slate-900">
+              Bảng Trạng Thái Các Nút Phân Tán (Cluster Nodes Status)
+            </h2>
           </div>
-          {selectedNode ? (
-            <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Tên Node:</span>
-                <span className="font-semibold text-slate-800">{selectedNode.name}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Vai trò (Role):</span>
-                <span className="font-semibold text-blue-600">{selectedNode.role}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Cổng Dịch Vụ:</span>
-                <span className="font-mono font-semibold text-slate-800">{selectedNode.port}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Container:</span>
-                <span className="font-mono font-semibold text-slate-800">{selectedNode.containerName}</span>
-              </div>
-              {selectedNode.replicaSet && (
-                <div className="flex justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-500">Replica Set:</span>
-                  <span className="font-semibold text-purple-600">{selectedNode.replicaSet}</span>
-                </div>
-              )}
-              {selectedNode.zone && (
-                <div className="flex justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-500">Zone Gán:</span>
-                  <span className="font-semibold text-emerald-600">{selectedNode.zone} ({selectedNode.region})</span>
-                </div>
-              )}
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Độ Trễ Phản Hồi:</span>
-                <span className="font-semibold text-slate-800">{selectedNode.latencyMs} ms</span>
-              </div>
-              <div className="pt-2">
-                <span className="text-slate-500 block mb-1">Mô tả chức năng:</span>
-                <p className="text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[11px] leading-relaxed">
-                  {selectedNode.description}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">Chọn một node trên sơ đồ để xem thông số.</p>
-          )}
+          <span className="font-mono text-[11px] text-slate-500">
+            {data?.nodes?.length || 0} nodes online
+          </span>
         </div>
 
-        {/* Sharding Policies */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100">
-            <Layers className="w-4 h-4 text-indigo-600" />
-            <h3 className="font-bold text-slate-800 text-sm">Chính Sách Phân Mảnh Dữ Liệu</h3>
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th className="w-36 font-mono">Node ID</th>
+                <th className="w-36">Vai Trò (Role)</th>
+                <th className="w-40 font-mono">Container Name</th>
+                <th className="num w-24">Port</th>
+                <th className="w-36 font-mono">Replica Set</th>
+                <th className="w-32">Zone Tag</th>
+                <th className="num w-24">Latency</th>
+                <th className="w-24 text-center">Trạng Thái</th>
+                <th className="w-20 text-right pr-3">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.nodes?.map((node) => {
+                const isSelected = selectedNode?.id === node.id;
+                return (
+                  <tr
+                    key={node.id}
+                    onClick={() => setSelectedNodeId(node.id)}
+                    className={`cursor-pointer transition-colors ${
+                      isSelected ? 'bg-blue-50/60 font-medium' : 'hover:bg-slate-50/70'
+                    }`}
+                  >
+                    <td className="font-mono font-semibold text-blue-700">
+                      {node.name}
+                    </td>
+                    <td>
+                      <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-slate-100 text-slate-700 border border-slate-200">
+                        {node.role}
+                      </span>
+                    </td>
+                    <td className="font-mono text-slate-700 text-xs">
+                      {node.containerName}
+                    </td>
+                    <td className="num font-semibold text-slate-900">
+                      {node.port}
+                    </td>
+                    <td className="font-mono text-xs text-slate-600">
+                      {node.replicaSet || '---'}
+                    </td>
+                    <td>
+                      {node.zone ? (
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          {node.zone} ({node.region})
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-xs">GLOBAL</span>
+                      )}
+                    </td>
+                    <td className="num font-bold text-emerald-700">
+                      {node.latencyMs} ms
+                    </td>
+                    <td className="text-center">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium text-emerald-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        {node.status}
+                      </span>
+                    </td>
+                    <td className="text-right pr-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedNodeId(node.id);
+                        }}
+                        className={`px-2 py-0.5 text-[11px] rounded transition-colors ${
+                          isSelected
+                            ? 'bg-blue-600 text-white font-semibold'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        Inspect
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 5. Node Inspector Terminal / Technical Spec & Sharding Collections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {/* Node Detail Spec */}
+        <div className="bg-slate-950 border border-slate-800 rounded-md p-3 text-xs font-mono text-slate-300">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-[11px]">
+            <div className="flex items-center gap-2 text-slate-200">
+              <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="font-bold">Node Telemetry: {selectedNode?.name}</span>
+            </div>
+            <span className="text-emerald-400 font-semibold">{selectedNode?.status}</span>
           </div>
-          <div className="space-y-3">
+
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 py-2.5 text-[11px]">
             <div>
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                Bộ sưu tập phân mảnh ngang (Sharded Collections - Range/Zone)
+              <span className="text-slate-500">Container Host:</span>{' '}
+              <strong className="text-white">{selectedNode?.containerName}</strong>
+            </div>
+            <div>
+              <span className="text-slate-500">Internal Port:</span>{' '}
+              <strong className="text-emerald-400">{selectedNode?.port}</strong>
+            </div>
+            <div>
+              <span className="text-slate-500">Cluster Role:</span>{' '}
+              <strong className="text-blue-400">{selectedNode?.role}</strong>
+            </div>
+            <div>
+              <span className="text-slate-500">Network Latency:</span>{' '}
+              <strong className="text-white">{selectedNode?.latencyMs} ms</strong>
+            </div>
+            {selectedNode?.replicaSet && (
+              <div>
+                <span className="text-slate-500">Replica Set:</span>{' '}
+                <strong className="text-purple-400">{selectedNode?.replicaSet}</strong>
+              </div>
+            )}
+            {selectedNode?.zone && (
+              <div>
+                <span className="text-slate-500">Assigned Zone:</span>{' '}
+                <strong className="text-amber-400">{selectedNode?.zone} ({selectedNode?.region})</strong>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 leading-relaxed">
+            <span className="text-slate-500">Mô tả tác vụ:</span> {selectedNode?.description}
+          </div>
+        </div>
+
+        {/* Sharding Catalog & Key Strategy */}
+        <div className="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col justify-between">
+          <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <Layers className="w-3.5 h-3.5 text-slate-600" />
+              <h3 className="font-semibold text-slate-900">
+                Chính Sách Phân Mảnh Dữ Liệu (Catalog Rules)
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono text-slate-500">Zone Ranges</span>
+          </div>
+
+          <div className="p-3 space-y-2 text-xs">
+            <div>
+              <span className="text-[10px] font-mono uppercase text-slate-500 block mb-1">
+                Sharded Collections (Zone Sharding Theo Chi Nhánh)
               </span>
-              <div className="space-y-1.5">
-                <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 text-xs">
-                  <span className="font-bold text-emerald-900">inventory_stocks</span>
-                  <span className="text-emerald-700 text-[11px] ml-2">Shard Key: <code>&#123; warehouse_branch: 1, material_code: 1 &#125;</code></span>
+              <div className="space-y-1 font-mono text-xs">
+                <div className="p-1.5 bg-slate-50 border border-slate-200 rounded flex items-center justify-between">
+                  <span className="font-bold text-slate-900">inventory_stocks</span>
+                  <code className="text-blue-700 text-[11px]">&#123; warehouse_branch: 1, material_code: 1 &#125;</code>
                 </div>
-                <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 text-xs">
-                  <span className="font-bold text-emerald-900">goods_receipts</span>
-                  <span className="text-emerald-700 text-[11px] ml-2">Shard Key: <code>&#123; warehouse_branch: 1, receipt_code: 1 &#125;</code></span>
+                <div className="p-1.5 bg-slate-50 border border-slate-200 rounded flex items-center justify-between">
+                  <span className="font-bold text-slate-900">goods_receipts</span>
+                  <code className="text-blue-700 text-[11px]">&#123; warehouse_branch: 1, receipt_code: 1 &#125;</code>
                 </div>
-                <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 text-xs">
-                  <span className="font-bold text-emerald-900">goods_issues</span>
-                  <span className="text-emerald-700 text-[11px] ml-2">Shard Key: <code>&#123; warehouse_branch: 1, issue_code: 1 &#125;</code></span>
+                <div className="p-1.5 bg-slate-50 border border-slate-200 rounded flex items-center justify-between">
+                  <span className="font-bold text-slate-900">goods_issues</span>
+                  <code className="text-blue-700 text-[11px]">&#123; warehouse_branch: 1, issue_code: 1 &#125;</code>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                Bộ sưu tập toàn cục (Global Unsharded Collections)
+            <div className="pt-1 border-t border-slate-100">
+              <span className="text-[10px] font-mono uppercase text-slate-500 block mb-1">
+                Global Reference Collections (Unsharded - Primary Shard 1)
               </span>
-              <div className="flex flex-wrap gap-1.5">
-                {['materials', 'material_categories', 'warehouses', 'suppliers', 'users'].map((c) => (
-                  <span key={c} className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-xs font-mono">
-                    {c}
+              <div className="flex flex-wrap gap-1 font-mono text-[11px]">
+                {['materials', 'material_categories', 'warehouses', 'suppliers', 'users'].map((col) => (
+                  <span key={col} className="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded border border-slate-200">
+                    {col}
                   </span>
                 ))}
               </div>
-              <p className="text-[11px] text-slate-500 mt-2">
-                Lưu trữ tập trung tại Primary Shard (Shard 1), được đồng bộ truy vấn dùng chung cho cả 2 miền.
-              </p>
             </div>
           </div>
         </div>

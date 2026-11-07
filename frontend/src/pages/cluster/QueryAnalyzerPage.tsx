@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import { api } from '../../lib/api';
 import {
   Zap,
-  Radio,
-  FileCode2,
+  Play,
+  Terminal,
+  Code2,
+  Layers,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
+import { MetricStrip, MetricItemProps } from '../../components/common/MetricStrip';
 
 interface ExplainResult {
   scenario: string;
@@ -27,7 +32,8 @@ export const QueryAnalyzerPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [resultA, setResultA] = useState<ExplainResult | null>(null);
   const [resultB, setResultB] = useState<ExplainResult | null>(null);
-  const [activeExplainModal, setActiveExplainModal] = useState<ExplainResult | null>(null);
+  const [activeJsonTab, setActiveJsonTab] = useState<'A' | 'B'>('A');
+  const [showRawJson, setShowRawJson] = useState<boolean>(false);
 
   const runScenarioA = async () => {
     try {
@@ -39,7 +45,7 @@ export const QueryAnalyzerPage: React.FC = () => {
       });
       setResultA(res);
     } catch {
-      // Ignored
+      // Handled by API error toast
     } finally {
       setLoading(false);
     }
@@ -54,261 +60,315 @@ export const QueryAnalyzerPage: React.FC = () => {
       });
       setResultB(res);
     } catch {
-      // Ignored
+      // Handled by API error toast
     } finally {
       setLoading(false);
     }
   };
 
   const runBothScenarios = async () => {
-    await runScenarioA();
-    await runScenarioB();
+    setLoading(true);
+    await Promise.all([runScenarioA(), runScenarioB()]);
+    setLoading(false);
   };
 
+  const metricItems: MetricItemProps[] = [
+    {
+      label: 'Targeted Latency (Scenario A)',
+      value: resultA ? `${resultA.executionStats.executionTimeMillis} ms` : 'Chưa chạy',
+      subText: 'Định tuyến đích Shard 1 (27018)',
+      status: resultA ? 'success' : 'neutral',
+    },
+    {
+      label: 'Scatter Latency (Scenario B)',
+      value: resultB ? `${resultB.executionStats.executionTimeMillis} ms` : 'Chưa chạy',
+      subText: 'Broadcast toàn bộ Shard (27018 + 27020)',
+      status: resultB ? 'warning' : 'neutral',
+    },
+    {
+      label: 'Stage Scenario A',
+      value: resultA?.targetStage || 'SINGLE_SHARD',
+      subText: 'Bỏ qua giai đoạn SHARD_MERGE',
+      status: 'success',
+    },
+    {
+      label: 'Stage Scenario B',
+      value: resultB?.targetStage || 'SHARD_MERGE',
+      subText: 'Router tổng hợp đa luồng',
+      status: 'warning',
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+    <div className="space-y-3 font-sans">
+      {/* 1. Header Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-200">
+        <div className="flex items-center gap-2.5">
+          <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
+            MODULE 12
+          </span>
+          <h1 className="text-base font-semibold text-slate-900 tracking-tight">
             Phân Tích & Định Tuyến Truy Vấn (Query Analyzer)
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Thực nghiệm đối chiếu hiệu năng giữa <b>Targeted Query (Nhắm đích)</b> và <b>Scatter-Gather Query (Phát tán gom tụ)</b> trên MongoDB Sharded Cluster.
-          </p>
+          <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+            explain("executionStats")
+          </span>
         </div>
-        <div>
+
+        <div className="flex items-center gap-2">
           <button
             onClick={runBothScenarios}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded text-xs font-semibold transition-colors cursor-pointer"
           >
-            <Zap className="w-3.5 h-3.5" />
-            Chạy Thử Nghiệm Đối Chiếu
+            <Zap className={`w-3.5 h-3.5 ${loading ? 'animate-pulse text-amber-400' : 'text-amber-400'}`} />
+            <span>Chạy Đối Chiếu Cặp Truy Vấn</span>
           </button>
         </div>
       </div>
 
-      {/* Two Interactive Scenario Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Scenario A: Targeted Query */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
+      {/* 2. Telemetry Metric Strip */}
+      <MetricStrip items={metricItems} />
+
+      {/* 3. Terminal Query Consoles (Scenario A & Scenario B) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {/* Scenario A Terminal */}
+        <div className="bg-slate-950 border border-slate-800 rounded-md overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
-                  A
-                </span>
-                <h3 className="font-bold text-slate-900 text-sm">Targeted Query (Nhắm Đích)</h3>
+            {/* Terminal Header */}
+            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900 border-b border-slate-800 text-[11px] font-mono">
+              <div className="flex items-center gap-2 text-slate-300">
+                <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="font-semibold text-white">Scenario A: Targeted Query</span>
               </div>
-              <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                Có Shard Key
+              <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px]">
+                Shard Key Included
               </span>
             </div>
 
-            <div className="mt-3.5 space-y-3">
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-700 leading-relaxed">
-                <span className="text-slate-400">// Truy vấn có trường phân mảnh warehouse_branch</span>
-                <br />
-                <span className="text-blue-600 font-semibold">db.inventory_stocks.find</span>({'{'}
-                <br />
-                &nbsp;&nbsp;<b>warehouse_branch</b>: <span className="text-emerald-700 font-semibold">"HN"</span>,
-                <br />
-                &nbsp;&nbsp;<b>material_code</b>: <span className="text-amber-700 font-semibold">"MAT-STEEL-D20"</span>
-                <br />
-                {'}'})
+            {/* Code Body */}
+            <div className="p-3 text-xs font-mono leading-relaxed text-slate-300">
+              <div className="text-slate-500">// Mongos Router: Điều hướng chính xác theo Zone Shard</div>
+              <div className="text-slate-400 mt-1">$ mongos&gt; db.inventory_stocks.find({'{'}</div>
+              <div className="pl-4 text-emerald-400 font-semibold">
+                warehouse_branch: "HN", <span className="text-slate-500">// Zone prefix = Shard 1</span>
               </div>
-
-              <button
-                onClick={runScenarioA}
-                disabled={loading}
-                className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                Thực Thi Kịch Bản A
-              </button>
+              <div className="pl-4 text-emerald-400 font-semibold">
+                material_code: "MAT-STEEL-D20"
+              </div>
+              <div className="text-slate-400">{'}'}).explain("executionStats")</div>
             </div>
+          </div>
 
-            {/* Results A */}
-            {resultA && (
-              <div className="mt-4 p-3.5 rounded-lg bg-emerald-50/50 border border-emerald-200 space-y-2.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-emerald-900 uppercase">Kết quả Execution Stats:</span>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-600 text-white">
-                    {resultA.targetStage}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2 bg-white rounded-md border border-emerald-100">
-                    <span className="text-slate-500 text-[11px] block">Thời gian phản hồi:</span>
-                    <span className="font-bold text-emerald-700 text-sm">{resultA.executionStats.executionTimeMillis} ms</span>
-                  </div>
-                  <div className="p-2 bg-white rounded-md border border-emerald-100">
-                    <span className="text-slate-500 text-[11px] block">Số Shard định tuyến:</span>
-                    <span className="font-bold text-slate-800 text-sm">{resultA.targetShards.length} Shard (Chỉ Shard 1)</span>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-slate-700 leading-relaxed bg-white p-2.5 rounded-md border border-emerald-100">
-                  {resultA.analysisSummary}
-                </p>
-
-                <button
-                  onClick={() => setActiveExplainModal(resultA)}
-                  className="w-full text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center justify-center gap-1.5 py-1"
-                >
-                  <FileCode2 className="w-3.5 h-3.5" /> Xem Cây Explain JSON
-                </button>
-              </div>
-            )}
+          {/* Terminal Footer Action */}
+          <div className="px-3 py-2 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between">
+            <span className="text-[11px] font-mono text-slate-400">
+              Target: <strong className="text-slate-200">shard1ReplSet (Port 27018)</strong>
+            </span>
+            <button
+              onClick={runScenarioA}
+              disabled={loading}
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-medium transition-colors cursor-pointer"
+            >
+              <Play className="w-3 h-3 fill-current" />
+              <span>Chạy Kịch Bản A</span>
+            </button>
           </div>
         </div>
 
-        {/* Scenario B: Scatter-Gather Query */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
+        {/* Scenario B Terminal */}
+        <div className="bg-slate-950 border border-slate-800 rounded-md overflow-hidden flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
-                  B
-                </span>
-                <h3 className="font-bold text-slate-900 text-sm">Scatter-Gather Query (Phát Tán)</h3>
+            {/* Terminal Header */}
+            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900 border-b border-slate-800 text-[11px] font-mono">
+              <div className="flex items-center gap-2 text-slate-300">
+                <Terminal className="w-3.5 h-3.5 text-amber-400" />
+                <span className="font-semibold text-white">Scenario B: Scatter-Gather Query</span>
               </div>
-              <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-50 text-amber-700 border border-amber-200">
-                Thiếu Shard Key
+              <span className="px-1.5 py-0.2 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px]">
+                Missing Shard Key
               </span>
             </div>
 
-            <div className="mt-3.5 space-y-3">
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-700 leading-relaxed">
-                <span className="text-slate-400">// Không truyền chi nhánh -&gt; Router phải broadcast</span>
-                <br />
-                <span className="text-blue-600 font-semibold">db.inventory_stocks.find</span>({'{'}
-                <br />
-                &nbsp;&nbsp;<b>quantity</b>: {'{'} $lte: <span className="text-purple-600 font-semibold">500</span> {'}'}
-                <br />
-                {'}'})
+            {/* Code Body */}
+            <div className="p-3 text-xs font-mono leading-relaxed text-slate-300">
+              <div className="text-slate-500">// Mongos Router: Buộc phải phát tán tới toàn bộ Shards</div>
+              <div className="text-slate-400 mt-1">$ mongos&gt; db.inventory_stocks.find({'{'}</div>
+              <div className="pl-4 text-amber-400 font-semibold">
+                quantity: {'{'} $lte: 500 {'}'} <span className="text-slate-500">// Không có Shard Key</span>
               </div>
-
-              <button
-                onClick={runScenarioB}
-                disabled={loading}
-                className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5"
-              >
-                <Radio className="w-3.5 h-3.5" />
-                Thực Thi Kịch Bản B
-              </button>
+              <div className="text-slate-400">{'}'}).explain("executionStats")</div>
             </div>
+          </div>
 
-            {/* Results B */}
-            {resultB && (
-              <div className="mt-4 p-3.5 rounded-lg bg-amber-50/50 border border-amber-200 space-y-2.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-amber-900 uppercase">Kết quả Execution Stats:</span>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-600 text-white">
-                    {resultB.targetStage}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2 bg-white rounded-md border border-amber-100">
-                    <span className="text-slate-500 text-[11px] block">Thời gian phản hồi:</span>
-                    <span className="font-bold text-amber-700 text-sm">{resultB.executionStats.executionTimeMillis} ms</span>
-                  </div>
-                  <div className="p-2 bg-white rounded-md border border-amber-100">
-                    <span className="text-slate-500 text-[11px] block">Số Shard định tuyến:</span>
-                    <span className="font-bold text-slate-800 text-sm">{resultB.targetShards.length} Shards (Broadcast tất cả)</span>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-slate-700 leading-relaxed bg-white p-2.5 rounded-md border border-amber-100">
-                  {resultB.analysisSummary}
-                </p>
-
-                <button
-                  onClick={() => setActiveExplainModal(resultB)}
-                  className="w-full text-xs font-semibold text-amber-700 hover:text-amber-800 flex items-center justify-center gap-1.5 py-1"
-                >
-                  <FileCode2 className="w-3.5 h-3.5" /> Xem Cây Explain JSON
-                </button>
-              </div>
-            )}
+          {/* Terminal Footer Action */}
+          <div className="px-3 py-2 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between">
+            <span className="text-[11px] font-mono text-slate-400">
+              Target: <strong className="text-amber-300">Broadcast ALL (Shard 1 + Shard 2)</strong>
+            </span>
+            <button
+              onClick={runScenarioB}
+              disabled={loading}
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs font-medium transition-colors cursor-pointer"
+            >
+              <Play className="w-3 h-3 fill-current" />
+              <span>Chạy Kịch Bản B</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Comparison Summary Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <h3 className="font-bold text-slate-800 text-sm">Bảng Đối Chiếu Kỹ Thuật Định Tuyến</h3>
-            <p className="text-[11px] text-slate-500 mt-0.5">Tác động của Shard Key lên hiệu năng hệ thống phân tán</p>
+      {/* 4. High-Density Execution Stats Comparison Table */}
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <Layers className="w-3.5 h-3.5 text-slate-600" />
+            <h2 className="font-semibold text-slate-900">
+              Bảng Thông Số Kỹ Thuật Đối Chiếu (Execution Stats)
+            </h2>
           </div>
-          <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 text-[11px] font-bold rounded border border-blue-100">
-            Khuyến nghị CSDLPT
+          <span className="font-mono text-[11px] text-slate-500">
+            Engine: WiredTiger · Protocol: OP_MSG
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200">
+          <table className="data-table">
+            <thead>
               <tr>
-                <th className="px-5 py-3">Tiêu chí đánh giá</th>
-                <th className="px-5 py-3">Targeted Query (Có Shard Key)</th>
-                <th className="px-5 py-3">Scatter-Gather Query (Không Shard Key)</th>
+                <th className="w-48">Tiêu Chí Đo Đạc</th>
+                <th className="w-64">Scenario A: Targeted (Có Key)</th>
+                <th className="w-64">Scenario B: Scatter-Gather (Không Key)</th>
+                <th>Phân Tích Kỹ Thuật / Đánh Giá</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               <tr>
-                <td className="px-5 py-3.5 font-semibold text-slate-800">Cơ chế Mongos Router</td>
-                <td className="px-5 py-3.5 text-emerald-700 font-medium">Định tuyến trực tiếp đến Shard chứa dữ liệu</td>
-                <td className="px-5 py-3.5 text-amber-700 font-medium">Phát tán request đến toàn bộ Shards trong cụm</td>
+                <td className="font-semibold text-slate-900">Winning Execution Stage</td>
+                <td className="font-mono text-xs font-bold text-emerald-700">
+                  {resultA?.targetStage || 'SINGLE_SHARD'}
+                </td>
+                <td className="font-mono text-xs font-bold text-amber-700">
+                  {resultB?.targetStage || 'SHARD_MERGE'}
+                </td>
+                <td className="text-slate-600">
+                  Targeted xử lý trực tiếp tại node Shard đích; Scatter-Gather buộc Router phải tổng hợp kết quả đa luồng.
+                </td>
               </tr>
               <tr>
-                <td className="px-5 py-3.5 font-semibold text-slate-800">Giai đoạn Execution Stage</td>
-                <td className="px-5 py-3.5 font-mono font-semibold text-emerald-600">SINGLE_SHARD</td>
-                <td className="px-5 py-3.5 font-mono font-semibold text-amber-600">SHARD_MERGE</td>
+                <td className="font-semibold text-slate-900">Thời gian phản hồi (Latency)</td>
+                <td className="num font-bold text-emerald-700">
+                  {resultA?.executionStats?.executionTimeMillis !== undefined
+                    ? `${resultA.executionStats.executionTimeMillis} ms`
+                    : '1 - 3 ms (Ước tính)'}
+                </td>
+                <td className="num font-bold text-amber-700">
+                  {resultB?.executionStats?.executionTimeMillis !== undefined
+                    ? `${resultB.executionStats.executionTimeMillis} ms`
+                    : '15 - 28 ms (Ước tính)'}
+                </td>
+                <td className="text-slate-600">
+                  Targeted đạt tốc độ tối đa nhờ không chịu độ trễ mạng phát tán qua nhiều nút.
+                </td>
               </tr>
               <tr>
-                <td className="px-5 py-3.5 font-semibold text-slate-800">Độ trễ trung bình (Latency)</td>
-                <td className="px-5 py-3.5 text-slate-700 font-semibold">1 - 3 ms (Cực nhanh)</td>
-                <td className="px-5 py-3.5 text-slate-700 font-semibold">15 - 30 ms (Gấp 6 - 15 lần)</td>
+                <td className="font-semibold text-slate-900">Số Shard tham gia truy vấn</td>
+                <td className="font-mono text-slate-900">
+                  {resultA?.targetShards?.length || 1} Shard <span className="text-slate-500 font-mono">(shard1ReplSet)</span>
+                </td>
+                <td className="font-mono text-slate-900">
+                  {resultB?.targetShards?.length || 2} Shards <span className="text-slate-500 font-mono">(shard1 + shard2)</span>
+                </td>
+                <td className="text-slate-600">
+                  Chỉ kích hoạt I/O trên node liên quan, bảo toàn tài nguyên cho các node còn lại.
+                </td>
               </tr>
               <tr>
-                <td className="px-5 py-3.5 font-semibold text-slate-800">Tiêu tốn băng thông mạng</td>
-                <td className="px-5 py-3.5 text-emerald-700 font-medium">Tối thiểu (1 Round-trip)</td>
-                <td className="px-5 py-3.5 text-amber-700 font-medium">Lãng phí (N Round-trips theo số nodes)</td>
+                <td className="font-semibold text-slate-900">Số Documents kiểm tra (Examined)</td>
+                <td className="num text-slate-900">
+                  {resultA?.executionStats?.totalDocsExamined ?? 1} docs
+                </td>
+                <td className="num text-slate-900">
+                  {resultB?.executionStats?.totalDocsExamined ?? 32} docs
+                </td>
+                <td className="text-slate-600">
+                  Chỉ số kiểm tra khớp chính xác chỉ mục Compound Shard Key `{'{ warehouse_branch: 1, material_code: 1 }'}`.
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold text-slate-900">Network Round-Trips</td>
+                <td className="num text-emerald-700 font-bold">1 trip</td>
+                <td className="num text-amber-700 font-bold">2 trips (Parallel)</td>
+                <td className="text-slate-600">
+                  Tiết kiệm băng thông nội bộ giữa Mongos Router và các Shard nodes.
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Explain JSON Modal */}
-      {activeExplainModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-2xl w-full max-h-[85vh] flex flex-col">
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm">Chi Tiết Cây Explain Plan JSON</h3>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-                  Kịch bản: {activeExplainModal.routingType} - Stage: {activeExplainModal.targetStage}
-                </p>
-              </div>
-              <button
-                onClick={() => setActiveExplainModal(null)}
-                className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-4 overflow-y-auto flex-1 bg-slate-950 rounded-b-xl text-emerald-400 font-mono text-xs">
-              <pre>{JSON.stringify(activeExplainModal.rawExplainOutput, null, 2)}</pre>
-            </div>
+      {/* 5. Terminal Raw JSON Inspector (Progressive Disclosure) */}
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div
+          onClick={() => setShowRawJson(!showRawJson)}
+          className="px-3 py-2 bg-slate-50 flex items-center justify-between text-xs cursor-pointer hover:bg-slate-100/70 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Code2 className="w-3.5 h-3.5 text-slate-600" />
+            <span className="font-semibold text-slate-800">
+              Khung Terminal: Cây Explain Output JSON Chi Tiết
+            </span>
+            <span className="text-[10px] font-mono text-slate-500">
+              (Raw MongoDB Engine Telemetry)
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-slate-500 font-mono">
+              {showRawJson ? 'Thu gọn' : 'Mở rộng console'}
+            </span>
+            {showRawJson ? <ChevronUp className="w-3.5 h-3.5 text-slate-600" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-600" />}
           </div>
         </div>
-      )}
+
+        {showRawJson && (
+          <div className="border-t border-slate-200 bg-slate-950 text-slate-200">
+            {/* Tab header */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 border-b border-slate-800 text-xs font-mono">
+              <button
+                onClick={() => setActiveJsonTab('A')}
+                className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
+                  activeJsonTab === 'A'
+                    ? 'bg-slate-800 text-emerald-400 font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Explain Plan (Scenario A)
+              </button>
+              <button
+                onClick={() => setActiveJsonTab('B')}
+                className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
+                  activeJsonTab === 'B'
+                    ? 'bg-slate-800 text-amber-400 font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Explain Plan (Scenario B)
+              </button>
+            </div>
+
+            {/* Terminal Pre */}
+            <div className="p-3 max-h-80 overflow-y-auto text-xs font-mono leading-relaxed text-emerald-400">
+              <pre>
+                {activeJsonTab === 'A'
+                  ? JSON.stringify(resultA?.rawExplainOutput || { message: 'Chưa chạy Scenario A. Bấm "Chạy Kịch Bản A" để tải dữ liệu explain plan từ mongos.' }, null, 2)
+                  : JSON.stringify(resultB?.rawExplainOutput || { message: 'Chưa chạy Scenario B. Bấm "Chạy Kịch Bản B" để tải dữ liệu explain plan từ mongos.' }, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
