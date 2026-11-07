@@ -115,7 +115,7 @@ export const DashboardOverviewPage: React.FC = () => {
           actions: [
             { label: 'Duyệt đối soát cân đối kho', link: '/stocktakes', primary: true },
             { label: 'Báo cáo định giá vốn FIFO', link: '/reports' },
-            { label: 'Truy vết Audit Logs', link: '/cluster-topology' },
+            { label: 'Danh mục vật tư chuẩn', link: '/materials' },
           ],
         };
       default: // SUPER_ADMIN
@@ -336,31 +336,33 @@ export const DashboardOverviewPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Cluster Telemetry Status Strip */}
-      <div className="bg-white px-3.5 py-2 rounded-md border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${isDbConnected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-          <span className="font-semibold text-slate-900">
-            {isDbConnected ? 'MongoDB Sharded Cluster Đang Hoạt Động Ổn Định' : 'Mất Kết Nối Tới MongoDB'}
-          </span>
-          <span className="text-slate-400 font-mono text-[11px] hidden md:inline">|</span>
-          <span className="text-slate-500 font-mono text-[11px] hidden md:inline">
-            DB: <span className="font-semibold text-slate-700">{data?.connection.database || 'material_inventory_db'}</span>
-          </span>
-        </div>
+      {/* Cluster Telemetry Status Strip (Super Admin Only) */}
+      {role === 'SUPER_ADMIN' && (
+        <div className="bg-white px-3.5 py-2 rounded-md border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${isDbConnected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            <span className="font-semibold text-slate-900">
+              {isDbConnected ? 'MongoDB Sharded Cluster Đang Hoạt Động Ổn Định' : 'Mất Kết Nối Tới MongoDB'}
+            </span>
+            <span className="text-slate-400 font-mono text-[11px] hidden md:inline">|</span>
+            <span className="text-slate-500 font-mono text-[11px] hidden md:inline">
+              DB: <span className="font-semibold text-slate-700">{data?.connection.database || 'material_inventory_db'}</span>
+            </span>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
-          <span className="bg-slate-50 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-            Router: <strong>27017</strong>
-          </span>
-          <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
-            Zone HN: <strong>Shard 1 (27018)</strong>
-          </span>
-          <span className="bg-blue-50 text-blue-800 px-2 py-0.5 rounded border border-blue-200">
-            Zone HCM: <strong>Shard 2 (27020)</strong>
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
+            <span className="bg-slate-50 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+              Router: <strong>27017</strong>
+            </span>
+            <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
+              Zone HN: <strong>Shard 1 (27018)</strong>
+            </span>
+            <span className="bg-blue-50 text-blue-800 px-2 py-0.5 rounded border border-blue-200">
+              Zone HCM: <strong>Shard 2 (27020)</strong>
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {error && (
         <div className="p-3 bg-rose-50 border border-rose-200 rounded-md text-xs text-rose-700">

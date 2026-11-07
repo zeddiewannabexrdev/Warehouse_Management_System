@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard,
   Layers,
@@ -28,14 +29,19 @@ interface MenuItem {
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
   isSharded?: boolean;
+  superAdminOnly?: boolean;
 }
 
 interface MenuGroup {
   groupName: string;
+  superAdminOnly?: boolean;
   items: MenuItem[];
 }
 
 export const Sidebar: React.FC = () => {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+
   const menuGroups: MenuGroup[] = [
     {
       groupName: 'TỔNG QUAN',
@@ -103,6 +109,7 @@ export const Sidebar: React.FC = () => {
     },
     {
       groupName: 'THỰC NGHIỆM PHÂN TÁN (DEMO)',
+      superAdminOnly: true,
       items: [
         {
           name: 'Cấu trúc Cụm Cluster',
@@ -143,6 +150,7 @@ export const Sidebar: React.FC = () => {
     },
     {
       groupName: 'QUẢN TRỊ HỆ THỐNG',
+      superAdminOnly: true,
       items: [
         {
           name: 'Người dùng & RBAC',
@@ -163,6 +171,14 @@ export const Sidebar: React.FC = () => {
     },
   ];
 
+  const visibleGroups = menuGroups
+    .filter((group) => !group.superAdminOnly || isSuperAdmin)
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !item.superAdminOnly || isSuperAdmin),
+    }))
+    .filter((group) => group.items.length > 0);
+
   return (
     <aside className="w-60 bg-[#0e1726] text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 select-none">
       <div className="h-12 px-4 flex items-center gap-2.5 border-b border-slate-800 bg-[#0a111c]">
@@ -174,13 +190,13 @@ export const Sidebar: React.FC = () => {
             DISTRIBUTED WMS
           </span>
           <span className="text-[9px] text-slate-400 font-mono leading-none mt-0.5">
-            MongoDB Sharded Cluster
+            {isSuperAdmin ? 'MongoDB Sharded Cluster' : 'Hệ Thống Kho Bãi Doanh Nghiệp'}
           </span>
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4 scrollbar-thin scrollbar-thumb-slate-700">
-        {menuGroups.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.groupName}>
             <div className="px-2 mb-1 text-[9px] font-semibold text-slate-400 tracking-wider font-mono uppercase">
               {group.groupName}
@@ -218,11 +234,35 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       <div className="h-8 px-3 border-t border-slate-800/80 bg-[#0a111c] text-[10px] text-slate-400 flex items-center justify-between font-mono">
-        <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Router: 27017
-        </span>
-        <span className="text-[9px] text-slate-400">CLUSTER</span>
+        {isSuperAdmin ? (
+          <>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Router: 27017
+            </span>
+            <span className="text-[9px] text-slate-400">CLUSTER</span>
+          </>
+        ) : (
+          <>
+            <span className="flex items-center gap-1.5 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              {user?.branch === 'HN'
+                ? 'Tổng kho Hà Nội'
+                : user?.branch === 'HCM'
+                ? 'Tổng kho TP.HCM'
+                : `Chi nhánh ${user?.branch || 'Toàn quốc'}`}
+            </span>
+            <span className="text-[9px] text-slate-400 shrink-0 font-sans font-medium">
+              {user?.role === 'MANAGER_HN' || user?.role === 'MANAGER_HCM'
+                ? 'Trưởng Kho'
+                : user?.role === 'QC_INSPECTOR'
+                ? 'KCS'
+                : user?.role === 'AUDITOR'
+                ? 'Kiểm Toán'
+                : user?.role}
+            </span>
+          </>
+        )}
       </div>
     </aside>
   );

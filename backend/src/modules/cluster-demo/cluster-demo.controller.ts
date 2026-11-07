@@ -1,6 +1,9 @@
 import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '../../common/constants/roles.constants';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ClusterDemoService } from './cluster-demo.service';
 import { QueryExplainDto } from './dto/query-explain.dto';
@@ -10,7 +13,8 @@ import { SemiJoinAnalyzeDto } from './dto/semi-join-analyze.dto';
 
 @ApiTags('Cluster Demo Suite')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.SUPER_ADMIN)
 @Controller('cluster')
 export class ClusterDemoController {
   constructor(private readonly clusterDemoService: ClusterDemoService) {}

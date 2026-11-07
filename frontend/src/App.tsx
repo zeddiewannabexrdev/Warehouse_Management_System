@@ -43,6 +43,28 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
+const SuperAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <LoadingSpinner label="Đang kiểm tra phân quyền..." />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user.role !== 'SUPER_ADMIN') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
@@ -74,20 +96,97 @@ export const App: React.FC = () => {
             <Route path="/stocktakes" element={<StocktakesPage />} />
             <Route path="/reports" element={<DistributedReportsPage />} />
 
-            {/* Distributed Database Demo Suite */}
-            <Route path="/cluster-topology" element={<ClusterTopologyPage />} />
-            <Route path="/shard-distribution" element={<ShardDistributionPage />} />
-            <Route path="/query-analyzer" element={<QueryAnalyzerPage />} />
-            <Route path="/explain-plan" element={<QueryAnalyzerPage />} />
-            <Route path="/distributed-transactions" element={<DistributedTransactionsPage />} />
-            <Route path="/zone-sharding-lab" element={<ZoneShardingLabPage />} />
-            <Route path="/ha-simulator" element={<HaSimulatorPage />} />
-            <Route path="/audit-ttl-explorer" element={<AuditTtlExplorerPage />} />
+            {/* Distributed Database Demo Suite (Super Admin Only) */}
+            <Route
+              path="/cluster-topology"
+              element={
+                <SuperAdminRoute>
+                  <ClusterTopologyPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/shard-distribution"
+              element={
+                <SuperAdminRoute>
+                  <ShardDistributionPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/query-analyzer"
+              element={
+                <SuperAdminRoute>
+                  <QueryAnalyzerPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/explain-plan"
+              element={
+                <SuperAdminRoute>
+                  <QueryAnalyzerPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/distributed-transactions"
+              element={
+                <SuperAdminRoute>
+                  <DistributedTransactionsPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/zone-sharding-lab"
+              element={
+                <SuperAdminRoute>
+                  <ZoneShardingLabPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/ha-simulator"
+              element={
+                <SuperAdminRoute>
+                  <HaSimulatorPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/audit-ttl-explorer"
+              element={
+                <SuperAdminRoute>
+                  <AuditTtlExplorerPage />
+                </SuperAdminRoute>
+              }
+            />
 
-            {/* Administration & Multi-Branch RBAC Foundation */}
-            <Route path="/users" element={<UsersManagementPage />} />
-            <Route path="/branches" element={<BranchesConfigPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            {/* Administration & Multi-Branch RBAC Foundation (Super Admin Only) */}
+            <Route
+              path="/users"
+              element={
+                <SuperAdminRoute>
+                  <UsersManagementPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/branches"
+              element={
+                <SuperAdminRoute>
+                  <BranchesConfigPage />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <SuperAdminRoute>
+                  <SettingsPage />
+                </SuperAdminRoute>
+              }
+            />
           </Route>
 
           {/* Fallback */}
