@@ -10,13 +10,13 @@ import {
 } from '../../types/stocktake.types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { StatusBadge } from '../../components/common/StatusBadge';
+import { MetricStrip } from '../../components/common/MetricStrip';
 import { formatNumber, formatDate } from '../../lib/utils';
 
 const formatCurrency = (val: number) => `${formatNumber(Math.round(val || 0))} ₫`;
 import {
   ClipboardList,
   CheckCircle2,
-  AlertTriangle,
   Scale,
   RefreshCw,
   Server,
@@ -196,55 +196,61 @@ export const StocktakesPage: React.FC = () => {
   const summary = listData?.summary;
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-4 max-w-7xl mx-auto font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="bg-white px-4 py-3 rounded-md border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded border bg-blue-50 text-blue-700 border-blue-200">
+              AUDIT & RECONCILIATION
+            </span>
+            <span className="text-xs text-slate-500 font-mono">
+              Single-Shard Targeted Query
+            </span>
+          </div>
+          <h1 className="text-base font-bold text-slate-900 tracking-tight">
             Kiểm kê Kho & Đối soát Tồn kho Thực tế
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-0.5">
             Chụp nhanh tồn kho từ Shard chi nhánh, đối chiếu số lượng kiểm đếm thực tế tại ô kệ và điều chỉnh số dư nguyên tử.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 self-start sm:self-center">
           <button
             onClick={() => {
               setRefreshing(true);
               fetchStocktakes();
             }}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
+            className="p-1.5 text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition-colors disabled:opacity-50"
+            title="Làm mới dữ liệu"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-            Làm mới
           </button>
 
           <button
             onClick={() => setActiveTab('WORKSHEET')}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition-colors"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            Lập bảng kiểm đếm mới
+            <span>Lập bảng kiểm đếm</span>
           </button>
         </div>
       </div>
 
       {/* Distributed Status Bar */}
-      <div className="bg-slate-50 text-slate-700 rounded-lg border border-slate-200 p-3 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2 font-semibold text-slate-900">
-            <Server className="w-4 h-4 text-blue-600" />
-            <span>Định tuyến đối soát tồn kho: Single-Shard Targeted Query</span>
-          </div>
-          <p className="text-[11px] text-slate-500">{routing?.description || 'Truy vấn định tuyến trực tiếp vào Shard chi nhánh tương ứng.'}</p>
+      <div className="bg-white px-3.5 py-2 rounded-md border border-slate-200 text-xs flex flex-col md:flex-row md:items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Server className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+          <span className="font-semibold text-slate-900">Định tuyến đối soát tồn kho:</span>
+          <span className="text-slate-500">{routing?.description || 'Truy vấn định tuyến trực tiếp vào Shard chi nhánh tương ứng.'}</span>
         </div>
         <div className="flex items-center gap-2 font-mono text-[11px]">
-          <span className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700">
+          <span className="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-700">
             Node: <strong className="text-emerald-700">{routing?.executing_shard || 'Shard 1'}</strong>
           </span>
-          <span className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700">
+          <span className="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-700">
             Độ trễ: <strong className="text-blue-700">{routing?.execution_time_ms || 2} ms</strong>
           </span>
         </div>
@@ -289,60 +295,34 @@ export const StocktakesPage: React.FC = () => {
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Tổng Biên bản Kiểm kê
-            </span>
-            <ClipboardList className="w-4 h-4 text-brand-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {formatNumber(summary?.total_stocktakes || 0)}
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">Collection: stocktakes</div>
-        </div>
-
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Khớp 100% Sổ sách
-            </span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-600">
-            {formatNumber(summary?.balanced_count || 0)}
-          </div>
-          <div className="text-[11px] text-emerald-700 mt-1 font-mono">Status: BALANCED</div>
-        </div>
-
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Phát hiện Chênh lệch
-            </span>
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
-          </div>
-          <div className="text-2xl font-bold text-rose-600">
-            {formatNumber(summary?.discrepancy_count || 0)}
-          </div>
-          <div className="text-[11px] text-rose-600 mt-1 font-mono">Status: DISCREPANCY_FOUND</div>
-        </div>
-
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Đã Cân đối Kho (ACID)
-            </span>
-            <Scale className="w-4 h-4 text-brand-600" />
-          </div>
-          <div className="text-2xl font-bold text-brand-700">
-            {formatNumber(summary?.adjusted_count || 0)}
-          </div>
-          <div className="text-[11px] text-brand-700 mt-1 font-mono">Status: ADJUSTED</div>
-        </div>
-      </div>
+      {/* KPI Metric Strip */}
+      <MetricStrip
+        items={[
+          {
+            label: 'Tổng Đợt Kiểm kê',
+            value: summary?.total_stocktakes || 0,
+            subText: 'Collection: stocktakes',
+          },
+          {
+            label: 'Khớp 100% Sổ sách',
+            value: summary?.balanced_count || 0,
+            subText: 'Status: BALANCED',
+            status: 'success',
+          },
+          {
+            label: 'Phát hiện Chênh lệch',
+            value: summary?.discrepancy_count || 0,
+            subText: 'Status: DISCREPANCY',
+            status: (summary?.discrepancy_count || 0) > 0 ? 'danger' : 'success',
+          },
+          {
+            label: 'Đã Cân đối ACID',
+            value: summary?.adjusted_count || 0,
+            subText: 'Status: ADJUSTED',
+            status: 'info',
+          },
+        ]}
+      />
 
       {/* Tabs */}
       <div className="border-b border-slate-200 flex gap-6 text-xs font-semibold">

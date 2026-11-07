@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { MetricStrip } from '../../components/common/MetricStrip';
 import {
   ShieldCheck,
   Activity,
@@ -8,7 +9,6 @@ import {
   RefreshCw,
   CheckCircle2,
   Play,
-  Database,
   Radio,
 } from 'lucide-react';
 
@@ -125,28 +125,36 @@ export const HaSimulatorPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-7xl mx-auto font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="bg-white px-4 py-3 rounded-md border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-blue-600" />
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded border bg-emerald-50 text-emerald-800 border-emerald-200">
+              HIGH AVAILABILITY
+            </span>
+            <span className="text-xs text-slate-500 font-mono">
+              3 Replica Sets Active
+            </span>
+          </div>
+          <h1 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-blue-600" />
             Mô Phỏng Chịu Lỗi & Tính Sẵn Sàng Cao (High Availability)
           </h1>
-          <p className="text-xs text-slate-500 mt-1 max-w-3xl">
+          <p className="text-xs text-slate-500 mt-0.5 max-w-3xl">
             Trực quan hóa cấu trúc Replica Set (Config Server, Shard 1, Shard 2), cơ chế bầu cử tự động (Heartbeat Election) và chính sách Write-Concern an toàn.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 self-start sm:self-center">
           <button
             onClick={handlePingNodes}
             disabled={pinging}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-md border border-slate-200 transition-colors"
             title="Đo round-trip latency và heartbeat giữa các node"
           >
             <Activity className={`w-3.5 h-3.5 ${pinging ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
-            Ping Nodes
+            <span>Ping Nodes</span>
           </button>
           <button
             onClick={() => {
@@ -154,25 +162,25 @@ export const HaSimulatorPage: React.FC = () => {
               fetchHaStatus();
             }}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors shadow-2xs"
+            className="p-1.5 text-slate-500 bg-white hover:bg-slate-50 rounded-md border border-slate-200 transition-colors"
+            title="Làm mới trạng thái"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
-            Làm mới
           </button>
         </div>
       </div>
 
       {/* Ping Results Bar if available */}
       {pingData && (
-        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg text-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="px-3.5 py-2 bg-white border border-slate-200 rounded-md text-xs flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
-            <span className="font-semibold text-slate-900">Kết quả Ping Node thời gian thực:</span>
-            <span className="text-slate-500">Độ trễ sao chép TB: <strong>{pingData.meanLagSec}s</strong></span>
+            <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+            <span className="font-semibold text-slate-900">Ping Node thời gian thực:</span>
+            <span className="text-slate-500">Độ trễ TB: <strong className="text-slate-800">{pingData.meanLagSec}s</strong></span>
           </div>
-          <div className="flex flex-wrap items-center gap-2 font-mono text-[11px]">
+          <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
             {pingData.nodes?.map((n: any) => (
-              <span key={n.host} className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-700">
+              <span key={n.host} className="px-1.5 py-0.2 bg-slate-50 border border-slate-200 rounded text-slate-700">
                 {n.host}: <strong className="text-emerald-700">{n.pingMs} ms</strong>
               </span>
             ))}
@@ -180,60 +188,34 @@ export const HaSimulatorPage: React.FC = () => {
         </div>
       )}
 
-      {/* Overview KPI Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Replica Sets Đang Hoạt Động</span>
-            <Database className="w-4 h-4 text-blue-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {data?.totalReplicaSets || 3} Bộ
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1 font-mono">
-            ConfigRS, Shard1RS, Shard2RS
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Mô hình Đồng Thuận</span>
-            <Zap className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            Majority
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1 font-mono">
-            Raft-like Quorum Votes &gt;= 50%+1
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Chu Kỳ Heartbeat</span>
-            <Activity className="w-4 h-4 text-blue-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            2,000 ms
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1 font-mono">
-            Election Timeout: 10,000 ms
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Write Concern Chuẩn</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-700">
-            Majority
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1 font-mono">
-            Read: primaryPreferred
-          </div>
-        </div>
-      </div>
+      {/* Overview Metric Strip */}
+      <MetricStrip
+        items={[
+          {
+            label: 'Replica Sets Đang Chạy',
+            value: `${data?.totalReplicaSets || 3} Bộ`,
+            subText: 'ConfigRS, Shard1RS, Shard2RS',
+            status: 'info',
+          },
+          {
+            label: 'Mô hình Đồng Thuận',
+            value: 'Majority',
+            subText: 'Raft-like Quorum Votes >= 50%+1',
+            status: 'success',
+          },
+          {
+            label: 'Chu Kỳ Heartbeat',
+            value: '2,000 ms',
+            subText: 'Election Timeout: 10,000 ms',
+          },
+          {
+            label: 'Write Concern Chuẩn',
+            value: 'Majority',
+            subText: 'Read: primaryPreferred',
+            status: 'success',
+          },
+        ]}
+      />
 
       {/* Main Grid: Interactive Replica Sets vs Failover Simulator */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -252,9 +234,9 @@ export const HaSimulatorPage: React.FC = () => {
             {data?.replicaSets.map((rs) => (
               <div
                 key={rs.name}
-                className={`bg-white rounded-xl border transition-all p-5 shadow-2xs ${
+                className={`bg-white rounded-md border transition-all p-4 ${
                   selectedReplSet === rs.name
-                    ? 'border-blue-500 ring-2 ring-blue-500/10'
+                    ? 'border-blue-500 ring-1 ring-blue-500/20'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
@@ -329,7 +311,7 @@ export const HaSimulatorPage: React.FC = () => {
 
         {/* Right Panel: Failover Simulator Console (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-md border border-slate-200 p-4 space-y-4">
             <div className="pb-3 border-b border-slate-100">
               <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Play className="w-4 h-4 text-blue-600" />

@@ -10,10 +10,10 @@ import {
 } from '../../types/stock-transfer.types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { StatusBadge } from '../../components/common/StatusBadge';
+import { MetricStrip } from '../../components/common/MetricStrip';
 import { formatNumber, formatDate } from '../../lib/utils';
 import {
   ArrowLeftRight,
-  Truck,
   CheckCircle2,
   XCircle,
   Plus,
@@ -241,73 +241,79 @@ export const StockTransfersPage: React.FC = () => {
     )?.available_quantity ?? 0;
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-4 max-w-7xl mx-auto font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="bg-white px-4 py-3 rounded-md border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded border bg-blue-50 text-blue-700 border-blue-200">
+              CROSS-ZONE 2PC
+            </span>
+            <span className="text-xs text-slate-500 font-mono">
+              HN (27018) ⇄ HCM (27020)
+            </span>
+          </div>
+          <h1 className="text-base font-bold text-slate-900 tracking-tight">
             Điều phối & Luân chuyển Vật tư Liên kho
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Điều phối luân chuyển vật tư giữa Tổng kho Miền Bắc (Shard 1 - Hà Nội) và Tổng kho Miền Nam (Shard 2 - TP.HCM) kèm thu hồi công trình.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Điều phối luân chuyển vật tư giữa Tổng kho Miền Bắc (Shard 1) và Tổng kho Miền Nam (Shard 2) kèm thu hồi công trình.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 self-start sm:self-center">
           <button
             onClick={() => {
               setRefreshing(true);
               fetchAllData();
             }}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
+            className="p-1.5 text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition-colors disabled:opacity-50"
+            title="Làm mới dữ liệu"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-            Làm mới
           </button>
 
           {activeTab === 'TRANSFERS' ? (
             <button
               onClick={() => setShowDispatchModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Lập lệnh điều chuyển
+              <span>Lập lệnh điều chuyển</span>
             </button>
           ) : (
             <button
               onClick={() => setShowReturnModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Lập phiếu thu hồi
+              <span>Lập phiếu thu hồi</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Cross-Zone Status Bar */}
-      <div className="bg-slate-50 text-slate-700 rounded-lg border border-slate-200 p-3 text-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2 font-semibold text-slate-900">
-            <Server className="w-4 h-4 text-blue-600" />
-            <span>Cơ chế điều phối dữ liệu liên vùng (Cross-Zone Sharding)</span>
-          </div>
-          <p className="text-[11px] text-slate-500">{routing?.description || 'Giao dịch ACID 2 pha bảo đảm cân bằng tồn kho tức thời giữa 2 Shard.'}</p>
+      <div className="bg-white px-3.5 py-2 rounded-md border border-slate-200 text-xs flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Server className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+          <span className="font-semibold text-slate-900">Cơ chế điều phối liên vùng (Cross-Zone Sharding):</span>
+          <span className="text-slate-500 hidden sm:inline">{routing?.description || 'Giao dịch ACID 2 pha bảo đảm cân bằng tồn kho tức thời giữa 2 Shard.'}</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 font-mono text-[11px]">
-          <div className="px-2.5 py-1 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
+        <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
+          <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
             Shard 1: Hà Nội (27018)
-          </div>
-          <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400" />
-          <div className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700">
+          </span>
+          <ArrowLeftRight className="w-3 h-3 text-slate-400" />
+          <span className="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-700">
             Router (27017)
-          </div>
-          <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400" />
-          <div className="px-2.5 py-1 rounded bg-blue-50 border border-blue-200 text-blue-800 font-semibold">
+          </span>
+          <ArrowLeftRight className="w-3 h-3 text-slate-400" />
+          <span className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-800 font-semibold">
             Shard 2: TP.HCM (27020)
-          </div>
+          </span>
         </div>
       </div>
 
@@ -367,60 +373,34 @@ export const StockTransfersPage: React.FC = () => {
         </div>
       )}
 
-      {/* KPI Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Tổng Lệnh Điều chuyển
-            </span>
-            <ArrowLeftRight className="w-4 h-4 text-brand-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {formatNumber(summary?.total_transfers || 0)}
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">Collection: stock_transfers</div>
-        </div>
-
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Đang Vận chuyển Liên vùng
-            </span>
-            <Truck className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-bold text-amber-600">
-            {formatNumber(summary?.in_transit_count || 0)}
-          </div>
-          <div className="text-[11px] text-amber-700 mt-1 font-mono">Status: IN_TRANSIT</div>
-        </div>
-
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Đã Nhập Kho Đích
-            </span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-600">
-            {formatNumber(summary?.received_count || 0)}
-          </div>
-          <div className="text-[11px] text-emerald-700 mt-1 font-mono">Status: RECEIVED</div>
-        </div>
-
-        <div className="bg-white p-4 rounded border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Biên bản Thu hồi Công trình
-            </span>
-            <RotateCcw className="w-4 h-4 text-brand-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {formatNumber(returnsData?.items?.length || 0)}
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">Collection: material_returns</div>
-        </div>
-      </div>
+      {/* KPI Metric Strip */}
+      <MetricStrip
+        items={[
+          {
+            label: 'Tổng Lệnh Điều chuyển',
+            value: summary?.total_transfers || 0,
+            subText: 'Collection: stock_transfers',
+          },
+          {
+            label: 'Đang Vận chuyển',
+            value: summary?.in_transit_count || 0,
+            subText: 'Status: IN_TRANSIT',
+            status: (summary?.in_transit_count || 0) > 0 ? 'warning' : 'neutral',
+          },
+          {
+            label: 'Đã Nhập Kho Đích',
+            value: summary?.received_count || 0,
+            subText: 'Status: RECEIVED',
+            status: 'success',
+          },
+          {
+            label: 'Biên bản Thu hồi',
+            value: returnsData?.items?.length || 0,
+            subText: 'Collection: material_returns',
+            status: 'info',
+          },
+        ]}
+      />
 
       {/* Navigation Tabs */}
       <div className="border-b border-slate-200 flex items-center justify-between">
@@ -453,15 +433,15 @@ export const StockTransfersPage: React.FC = () => {
       {activeTab === 'TRANSFERS' ? (
         <div className="space-y-4">
           {/* Filter Bar */}
-          <div className="bg-white p-4 rounded border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="bg-white p-2.5 rounded-md border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-1.5 flex-wrap">
               {['ALL', 'IN_TRANSIT', 'RECEIVED', 'CANCELLED'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
-                  className={`px-3 py-1.5 rounded text-xs font-medium font-mono transition-colors ${
+                  className={`px-2.5 py-1 rounded text-xs font-medium font-mono transition-colors ${
                     statusFilter === st
-                      ? 'bg-brand-700 text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
@@ -470,20 +450,20 @@ export const StockTransfersPage: React.FC = () => {
               ))}
             </div>
 
-            <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <form onSubmit={handleSearch} className="flex items-center gap-1.5">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="Tìm mã phiếu TRF, mã vật tư..."
-                  className="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-600 w-64"
+                  placeholder="Tìm mã phiếu TRF, mã VT..."
+                  className="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-56"
                 />
               </div>
               <button
                 type="submit"
-                className="px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded hover:bg-slate-900"
+                className="px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-md hover:bg-slate-800 transition-colors"
               >
                 Lọc
               </button>
@@ -491,65 +471,65 @@ export const StockTransfersPage: React.FC = () => {
           </div>
 
           {/* Stock Transfers Table */}
-          <div className="bg-white rounded border border-slate-200 shadow-2xs overflow-hidden">
+          <div className="bg-white rounded-md border border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
-                    <th className="py-3 px-4">Mã Điều chuyển</th>
-                    <th className="py-3 px-4">Lộ trình Liên Vùng (Cross-Zone)</th>
-                    <th className="py-3 px-4">Danh mục Vật tư & Khối lượng</th>
-                    <th className="py-3 px-4">Phương thức Vận tải</th>
-                    <th className="py-3 px-4">Ngày xuất</th>
-                    <th className="py-3 px-4">Trạng thái</th>
-                    <th className="py-3 px-4 text-right">Thao tác Điều phối</th>
+              <table className="data-table">
+                <thead className="sticky top-0 bg-slate-50 z-10">
+                  <tr>
+                    <th>Mã Điều chuyển</th>
+                    <th>Lộ trình Liên Vùng (Cross-Zone)</th>
+                    <th>Danh mục Vật tư & Khối lượng</th>
+                    <th>Phương thức Vận tải</th>
+                    <th className="num">Ngày xuất</th>
+                    <th>Trạng thái</th>
+                    <th className="text-right">Thao tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {transferData?.items && transferData.items.length > 0 ? (
                     transferData.items.map((trf) => (
-                      <tr key={trf._id || trf.transfer_code} className="hover:bg-slate-50/80">
-                        <td className="py-3.5 px-4 font-mono font-bold text-brand-700">
+                      <tr key={trf._id || trf.transfer_code}>
+                        <td className="font-mono font-bold text-blue-700">
                           {trf.transfer_code}
                         </td>
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-2 font-mono text-xs">
-                            <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-semibold text-slate-800">
-                              {trf.from_branch} ({trf.from_warehouse})
+                        <td>
+                          <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                            <span className="px-1.5 py-0.2 rounded bg-slate-100 border border-slate-200 font-semibold text-slate-800">
+                              {trf.from_branch}
                             </span>
-                            <ArrowRight className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                            <span className="px-2 py-0.5 rounded bg-brand-50 border border-brand-200 font-semibold text-brand-800">
-                              {trf.to_branch} ({trf.to_warehouse})
+                            <ArrowRight className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="px-1.5 py-0.2 rounded bg-blue-50 border border-blue-200 font-semibold text-blue-800">
+                              {trf.to_branch}
                             </span>
                           </div>
-                          <div className="text-[10px] text-slate-400 font-mono mt-1">
+                          <div className="text-[10px] text-slate-400 font-mono mt-0.5">
                             {trf.source_shard} → {trf.destination_shard}
                           </div>
                         </td>
-                        <td className="py-3.5 px-4">
-                          <div className="space-y-1">
+                        <td>
+                          <div className="space-y-0.5">
                             {trf.items.map((it, idx) => (
-                              <div key={idx} className="flex items-center gap-2">
-                                <span className="font-mono text-[11px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
+                              <div key={idx} className="flex items-center gap-1.5">
+                                <span className="font-mono text-[10px] text-slate-600 bg-slate-100 px-1 py-0.2 rounded">
                                   {it.material_code}
                                 </span>
-                                <span className="font-medium text-slate-800">
+                                <span className="text-xs text-slate-800">
                                   {it.material_name}
                                 </span>
-                                <span className="font-mono font-bold text-brand-700">
+                                <span className="font-mono font-bold text-blue-700 text-xs">
                                   x {formatNumber(it.quantity)} {it.unit}
                                 </span>
                               </div>
                             ))}
                           </div>
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600 max-w-[200px]">
+                        <td className="text-slate-600 max-w-[180px] truncate text-xs">
                           {trf.transport_method}
                         </td>
-                        <td className="py-3.5 px-4 font-mono text-slate-500 text-[11px]">
+                        <td className="num text-slate-500 text-[11px]">
                           {formatDate(trf.transfer_date)}
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td>
                           <StatusBadge
                             status={trf.status}
                             variant={
@@ -561,12 +541,12 @@ export const StockTransfersPage: React.FC = () => {
                             }
                           />
                         </td>
-                        <td className="py-3.5 px-4 text-right">
+                        <td className="text-right">
                           {trf.status === 'IN_TRANSIT' ? (
-                            <div className="inline-flex items-center gap-1.5">
+                            <div className="inline-flex items-center gap-1">
                               <button
                                 onClick={() => handleReceiveTransfer(trf.transfer_code)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold rounded transition-colors"
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold rounded transition-colors"
                                 title="Xác nhận hàng đã tới kho đích và cộng tồn kho trên Shard đích"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />

@@ -58,27 +58,30 @@ export const DistributedTransactionsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-7xl mx-auto font-sans">
       {/* Header Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="bg-white px-4 py-3 rounded-md border border-slate-200 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Giao Dịch Phân Tán (Distributed ACID Transactions)
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              <Lock className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono font-bold rounded border bg-blue-50 text-blue-700 border-blue-200">
+              <Lock className="w-3 h-3" />
               Snapshot Isolation
             </span>
+            <span className="text-xs text-slate-500 font-mono">
+              2PC Coordinator
+            </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <h1 className="text-base font-bold text-slate-900 tracking-tight">
+            Giao Dịch Phân Tán (Distributed ACID Transactions)
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
             Mô phỏng quy trình cấp phát vật tư đa tài liệu: Xuất kho + Trừ tồn kho + Ghi nhật ký với cơ chế Commit hoặc Rollback an toàn.
           </p>
         </div>
       </div>
 
       {/* Simulator Control Panel */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="bg-white p-4 rounded-md border border-slate-200">
         <h2 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">
           Cấu Hình Phiên Giao Dịch Mô Phỏng
         </h2>
@@ -207,33 +210,33 @@ export const DistributedTransactionsPage: React.FC = () => {
         <div className="space-y-6">
           {/* Status Alert Banner */}
           <div
-            className={`p-4 rounded-xl border flex items-center justify-between ${
+            className={`p-3 rounded-md border flex items-center justify-between text-xs ${
               result.isCommitted
                 ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
                 : 'bg-rose-50/70 border-rose-200 text-rose-900'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               {result.isCommitted ? (
-                <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
               ) : (
-                <RotateCcw className="w-6 h-6 text-rose-600 shrink-0" />
+                <RotateCcw className="w-5 h-5 text-rose-600 shrink-0" />
               )}
               <div>
-                <h3 className="font-bold text-sm">
+                <h3 className="font-bold text-xs">
                   {result.isCommitted
                     ? 'Giao Dịch ACID Thành Công (Transaction Committed)'
                     : 'Giao Dịch Đã Hoàn Tác An Toàn (Transaction Aborted & Rolled Back)'}
                 </h3>
-                <p className="text-xs mt-0.5 opacity-90">
+                <p className="text-[11px] mt-0.5 opacity-90">
                   {result.isCommitted
                     ? 'Tồn kho được trừ, phiếu xuất được tạo và nhật ký kiểm toán được đồng bộ đa tài liệu.'
-                    : `Nguyên nhân ngắt giao dịch: ${result.reason || 'Kích hoạt hoàn tác'}. Tồn kho không bị trừ, không phát sinh dữ liệu rác.`}
+                    : `Nguyên nhân ngắt: ${result.reason || 'Kích hoạt hoàn tác'}. Tồn kho không bị trừ, không phát sinh dữ liệu rác.`}
                 </p>
               </div>
             </div>
 
-            <span className={`px-2.5 py-1 text-[11px] font-bold rounded uppercase ${
+            <span className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded uppercase ${
               result.isCommitted ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
             }`}>
               {result.transactionStatus}
@@ -241,46 +244,46 @@ export const DistributedTransactionsPage: React.FC = () => {
           </div>
 
           {/* Stock Integrity Verification Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-white p-3.5 rounded-md border border-slate-200">
+              <div className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Số Lượng Tồn Kho Trước Giao Dịch
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-slate-800">
+                <span className="text-xl font-bold font-mono text-slate-900">
                   {result.preStock.quantity}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 font-mono">
                   (Khả dụng: {result.preStock.available_quantity})
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">Dữ liệu đọc tại thời điểm Snapshot Session bắt đầu</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 font-mono">Snapshot Session bắt đầu</p>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            <div className="bg-white p-3.5 rounded-md border border-slate-200">
+              <div className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Số Lượng Tồn Kho Sau Giao Dịch (Kiểm Chứng)
               </div>
               <div className="flex items-baseline gap-2">
-                <span className={`text-2xl font-bold ${
+                <span className={`text-xl font-bold font-mono ${
                   result.isCommitted ? 'text-emerald-600' : 'text-blue-600'
                 }`}>
                   {result.postStock.quantity}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 font-mono">
                   (Khả dụng: {result.postStock.available_quantity})
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-700 font-medium mt-1">
+              <p className="text-[10px] text-emerald-700 font-mono font-medium mt-0.5">
                 {result.isCommitted
                   ? `Đã cập nhật trừ chính xác ${quantity} đơn vị`
-                  : '✔ Tính toàn vẹn được bảo toàn 100%: Số lượng giữ nguyên vẹn!'}
+                  : '✔ Tính toàn vẹn được bảo toàn 100%: Số lượng giữ nguyên!'}
               </p>
             </div>
           </div>
 
           {/* Execution Stepper / Timeline Log */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div className="bg-white p-4 rounded-md border border-slate-200">
             <h3 className="font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2 text-sm">
               <Clock className="w-4 h-4 text-slate-500" />
               Nhật Ký Thực Thi Các Bước Trong Phiên Giao Dịch (Execution Stepper)

@@ -56,19 +56,19 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-md border border-slate-200 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center space-x-3">
-            <div className={`p-2 rounded-lg border ${currentTheme.bg} ${currentTheme.border} ${currentTheme.text}`}>
-              <Layers className="w-5 h-5" />
+            <div className={`p-1.5 rounded-md border ${currentTheme.bg} ${currentTheme.border} ${currentTheme.text}`}>
+              <Layers className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-semibold">
                   {material.material_code}
                 </span>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium border ${currentTheme.bg} ${currentTheme.text} ${currentTheme.border}`}>
+                <span className={`text-xs px-2 py-0.5 rounded font-medium border ${currentTheme.bg} ${currentTheme.text} ${currentTheme.border}`}>
                   {material.category_code}
                 </span>
                 <StatusBadge
@@ -76,14 +76,14 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
                   variant={material.is_active ? 'success' : 'danger'}
                 />
               </div>
-              <h3 className="text-base font-semibold text-slate-900 mt-1 leading-snug">
+              <h3 className="text-sm font-bold text-slate-900 mt-1 leading-snug">
                 {material.name}
               </h3>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
+            className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

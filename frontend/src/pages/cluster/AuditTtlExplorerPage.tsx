@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { MetricStrip } from '../../components/common/MetricStrip';
 import { formatDate } from '../../lib/utils';
 import {
   History,
-  ShieldCheck,
   Search,
   RefreshCw,
   Plus,
   Clock,
-  Database,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Sliders,
 } from 'lucide-react';
 
 interface AuditLogItem {
@@ -187,26 +185,34 @@ export const AuditTtlExplorerPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-7xl mx-auto font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="bg-white px-4 py-3 rounded-md border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <History className="w-5 h-5 text-blue-600" />
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded border bg-blue-50 text-blue-700 border-blue-200">
+              AUDIT TELEMETRY
+            </span>
+            <span className="text-xs text-slate-500 font-mono">
+              TTL Index: {ttlInfo?.expireDays || 90}d
+            </span>
+          </div>
+          <h1 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <History className="w-4 h-4 text-blue-600" />
             Nhật Ký Kiểm Toán Phân Tán & Tự Động Thu Hồi TTL
           </h1>
-          <p className="text-xs text-slate-500 mt-1 max-w-3xl">
+          <p className="text-xs text-slate-500 mt-0.5 max-w-3xl">
             Lưu vết toàn bộ giao dịch nghiệp vụ nhạy cảm trên cụm phân tán và tự động giải phóng dung lượng theo cơ chế TTL Index (Time-To-Live).
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 self-start sm:self-center">
           <button
             onClick={() => setIsSimulateModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            Tạo bản ghi thử nghiệm
+            <span>Tạo bản ghi thử nghiệm</span>
           </button>
           <button
             onClick={() => {
@@ -215,81 +221,53 @@ export const AuditTtlExplorerPage: React.FC = () => {
               fetchTtlStatus();
             }}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors shadow-2xs"
+            className="p-1.5 text-slate-500 bg-white hover:bg-slate-50 rounded-md border border-slate-200 transition-colors"
+            title="Làm mới"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
-            Làm mới
           </button>
         </div>
       </div>
 
       {/* Success Notification */}
       {actionSuccessMsg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-center gap-2 animate-fadeIn">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-md text-xs text-emerald-900 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{actionSuccessMsg}</span>
         </div>
       )}
 
-      {/* Top Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Tổng Sự Kiện Đã Lưu Vết</span>
-            <Database className="w-4 h-4 text-blue-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {totalCount} Bản ghi
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1 font-mono">
-            Collection: material_audit_logs
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Chính Sách Lưu Trữ TTL</span>
-            <Clock className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            {ttlInfo?.expireDays || 90} Ngày
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1 font-mono">
-            {ttlInfo?.expireAfterSeconds?.toLocaleString()} giây
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Luồng Nền TTL Monitor</span>
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-700">
-            Active
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1 font-mono">
-            Chu kỳ dọn dẹp: 60 giây/lần
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-medium">Cấu Hình Chu Kỳ TTL</span>
-            <Sliders className="w-4 h-4 text-slate-400" />
-          </div>
-          <div>
-            <button
-              onClick={() => setIsTtlConfigOpen(true)}
-              className="w-full py-1.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition"
-            >
-              Chỉnh sửa thời gian TTL
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Top Metric Strip */}
+      <MetricStrip
+        items={[
+          {
+            label: 'Tổng Sự Kiện Đã Lưu',
+            value: `${totalCount} mục`,
+            subText: 'Collection: material_audit_logs',
+            status: 'info',
+          },
+          {
+            label: 'Chính Sách TTL',
+            value: `${ttlInfo?.expireDays || 90} Ngày`,
+            subText: `${ttlInfo?.expireAfterSeconds?.toLocaleString()} giây`,
+            status: 'success',
+          },
+          {
+            label: 'Luồng Nền TTL Monitor',
+            value: 'Active',
+            subText: 'Chu kỳ dọn dẹp: 60s/lần',
+            status: 'success',
+          },
+          {
+            label: 'Cấu Hình Chu Kỳ TTL',
+            value: `${ttlInfo?.expireDays || 90}d`,
+            subText: 'Click để cấu hình',
+          },
+        ]}
+      />
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+      <div className="p-2.5 bg-white rounded-md border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
         <form onSubmit={handleSearchSubmit} className="flex-1 flex items-center space-x-2">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -344,21 +322,21 @@ export const AuditTtlExplorerPage: React.FC = () => {
       </div>
 
       {/* Audit Log Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-md border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
-                <th className="p-3.5">Thời Gian</th>
-                <th className="p-3.5">Người Thực Hiện</th>
-                <th className="p-3.5">Chi Nhánh</th>
-                <th className="p-3.5">Hành Động</th>
-                <th className="p-3.5">Đối Tượng (Resource)</th>
-                <th className="p-3.5">Chi Tiết Hành Động</th>
-                <th className="p-3.5 text-center">Trạng Thái</th>
+          <table className="data-table">
+            <thead className="sticky top-0 bg-slate-50 z-10">
+              <tr>
+                <th className="num">Thời Gian</th>
+                <th>Người Thực Hiện</th>
+                <th>Chi Nhánh</th>
+                <th>Hành Động</th>
+                <th>Đối Tượng (Resource)</th>
+                <th>Chi Tiết Hành Động</th>
+                <th className="text-center">Trạng Thái</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {logs.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-slate-400">
@@ -367,34 +345,34 @@ export const AuditTtlExplorerPage: React.FC = () => {
                 </tr>
               ) : (
                 logs.map((item) => (
-                  <tr key={item._id} className="hover:bg-slate-50/70 transition">
-                    <td className="p-3.5 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                  <tr key={item._id}>
+                    <td className="num font-mono text-[11px] text-slate-500 whitespace-nowrap">
                       {formatDate(item.timestamp)}
                     </td>
-                    <td className="p-3.5 font-medium text-slate-900 whitespace-nowrap">
+                    <td className="font-medium text-slate-900 whitespace-nowrap">
                       <div>{item.user_email || 'Hệ thống tự động'}</div>
                       {item.user_role && (
                         <span className="text-[10px] text-slate-400 font-mono">{item.user_role}</span>
                       )}
                     </td>
-                    <td className="p-3.5 whitespace-nowrap">
-                      <span className="px-2 py-0.5 rounded font-mono text-[11px] font-semibold bg-slate-100 text-slate-700">
+                    <td className="whitespace-nowrap">
+                      <span className="px-1.5 py-0.2 rounded font-mono text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                         {item.warehouse_branch || 'ALL'}
                       </span>
                     </td>
-                    <td className="p-3.5 whitespace-nowrap">
-                      <span className={`px-2 py-0.5 rounded font-mono text-[10px] font-semibold border ${getActionBadgeColor(item.action)}`}>
+                    <td className="whitespace-nowrap">
+                      <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] font-semibold border ${getActionBadgeColor(item.action)}`}>
                         {item.action}
                       </span>
                     </td>
-                    <td className="p-3.5 font-mono text-[11px] text-slate-700 whitespace-nowrap">
+                    <td className="font-mono text-[11px] text-slate-700 whitespace-nowrap">
                       {item.resource || '—'}
                     </td>
-                    <td className="p-3.5 text-slate-600 max-w-xs truncate" title={item.details}>
+                    <td className="text-slate-600 max-w-xs truncate text-xs" title={item.details}>
                       {item.details || '—'}
                     </td>
-                    <td className="p-3.5 text-center whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <td className="text-center whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                         {item.status || 'SUCCESS'}
                       </span>
@@ -407,37 +385,39 @@ export const AuditTtlExplorerPage: React.FC = () => {
         </div>
 
         {/* Pagination Bar */}
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <div>
-            Hiển thị trang <strong>{page}</strong> trên <strong>{totalPages}</strong> ({totalCount} sự kiện)
+        <div className="px-3.5 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+          <div className="font-mono text-[11px]">
+            Trang <strong>{page}</strong> / <strong>{totalPages}</strong> ({totalCount} sự kiện)
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40"
+              className="p-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40"
+              aria-label="Trang trước"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40"
+              className="p-1 rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40"
+              aria-label="Trang sau"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
       </div>
 
       {/* TTL Index Explanation & Proof */}
-      <div className="bg-slate-50 rounded-xl border border-slate-200 p-5 text-xs text-slate-700 space-y-2">
+      <div className="bg-white rounded-md border border-slate-200 p-4 text-xs text-slate-700 space-y-1.5">
         <div className="flex items-center gap-2 font-bold text-slate-900">
           <Clock className="w-4 h-4 text-blue-600" />
           <span>Cơ Chế Kỹ Thuật Chỉ Mục TTL Index (MongoDB WiredTiger Engine)</span>
         </div>
         <p className="leading-relaxed">
-          Chỉ mục TTL Index được định nghĩa bằng chỉ lệnh: <code className="bg-white px-2 py-0.5 rounded border font-mono text-[11px] text-blue-800">db.material_audit_logs.createIndex({'{'} timestamp: 1 {'}'}, {'{'} expireAfterSeconds: {ttlInfo?.expireAfterSeconds || 7776000} {'}'})</code>.
+          Chỉ mục TTL Index được định nghĩa bằng chỉ lệnh: <code className="bg-slate-50 px-2 py-0.5 rounded border border-slate-200 font-mono text-[11px] text-blue-800">db.material_audit_logs.createIndex({'{'} timestamp: 1 {'}'}, {'{'} expireAfterSeconds: {ttlInfo?.expireAfterSeconds || 7776000} {'}'})</code>.
         </p>
         <p className="text-slate-500 leading-relaxed text-[11px]">
           Luồng nền ngầm (Background Thread) của MongoDB tự động kích hoạt mỗi 60 giây, quét trường <code>timestamp</code> và thực thi xóa nguyên tử các tài liệu quá hạn {ttlInfo?.expireDays || 90} ngày nhằm bảo đảm an toàn dữ liệu, chống phân mảnh đĩa cứng và tuân thủ quy chuẩn kiểm toán an ninh thông tin ISO 27001.
@@ -447,7 +427,7 @@ export const AuditTtlExplorerPage: React.FC = () => {
       {/* Simulate Event Modal */}
       {isSimulateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4">
+          <div className="bg-white rounded-md border border-slate-200 w-full max-w-md p-5 space-y-4">
             <h3 className="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">
               Tạo Bản Ghi Kiểm Toán Thử Nghiệm
             </h3>
@@ -530,7 +510,7 @@ export const AuditTtlExplorerPage: React.FC = () => {
       {/* Update TTL Modal */}
       {isTtlConfigOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4">
+          <div className="bg-white rounded-md border border-slate-200 w-full max-w-md p-5 space-y-4">
             <h3 className="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">
               Cập Nhật Chu Kỳ Lưu Trữ TTL Index
             </h3>

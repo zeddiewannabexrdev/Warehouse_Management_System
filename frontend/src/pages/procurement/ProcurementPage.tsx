@@ -227,9 +227,9 @@ export const ProcurementPage: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-7xl mx-auto font-sans">
       {/* 1. Header & Branch Selection */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="bg-white px-4 py-3 rounded-md border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-blue-600" />
