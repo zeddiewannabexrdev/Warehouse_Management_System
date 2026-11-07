@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    font-family: Inter, system-ui, -apple-system, sans-serif;
+  *, ::before, ::after {
+    font-family: Arial, Helvetica, sans-serif;
   }
-  body {
+  html, body {
     @apply bg-[#f8fafc] text-slate-900 antialiased;
-    font-family: Inter, system-ui, -apple-system, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
   }
   code, kbd, samp, pre, .font-mono {
-    font-family: "JetBrains Mono", Consolas, "Courier New", monospace !important;
+    font-family: Arial, Helvetica, sans-serif !important;
     font-feature-settings: "tnum" 1;
   }
 }

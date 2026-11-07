@@ -67,16 +67,14 @@ export default {
       },
       fontFamily: {
         sans: [
-          'Inter',
-          'system-ui',
-          '-apple-system',
+          'Arial',
+          'Helvetica',
           'sans-serif'
         ],
         mono: [
-          'JetBrains Mono',
-          'Consolas',
-          'Courier New',
-          'monospace'
+          'Arial',
+          'Helvetica',
+          'sans-serif'
         ]
       }
     },
