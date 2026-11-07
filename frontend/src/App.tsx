@@ -8,6 +8,8 @@ import { MaterialsPage } from './pages/materials/MaterialsPage';
 import { WarehouseMapPage } from './pages/warehouses/WarehouseMapPage';
 import { ProcurementPage } from './pages/procurement/ProcurementPage';
 import { InventoryPage } from './pages/inventory/InventoryPage';
+import { GoodsReceiptsPage } from './pages/goods-receipts/GoodsReceiptsPage';
+import { GoodsIssuesPage } from './pages/goods-issues/GoodsIssuesPage';
 import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
 import { UsersManagementPage } from './pages/users/UsersManagementPage';
 import { BranchesConfigPage } from './pages/branches/BranchesConfigPage';
@@ -66,8 +68,8 @@ export const App: React.FC = () => {
             <Route path="/procurement" element={<ProcurementPage />} />
             <Route path="/suppliers" element={<ProcurementPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
-            <Route path="/goods-receipts" element={<ModulePlaceholderPage />} />
-            <Route path="/goods-issues" element={<ModulePlaceholderPage />} />
+            <Route path="/goods-receipts" element={<GoodsReceiptsPage />} />
+            <Route path="/goods-issues" element={<GoodsIssuesPage />} />
             <Route path="/stock-transfers" element={<StockTransfersPage />} />
             <Route path="/stocktakes" element={<StocktakesPage />} />
             <Route path="/reports" element={<DistributedReportsPage />} />

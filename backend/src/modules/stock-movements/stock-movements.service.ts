@@ -49,7 +49,8 @@ export class StockMovementsService implements OnModuleInit {
   private scope(user: AuthenticatedUser, requested?: string, write = false): string {
     const managerBranch = MANAGER_BRANCH[user.role];
     const canReadAll =
-      user.role === UserRole.SUPER_ADMIN || (!write && user.role === UserRole.AUDITOR);
+      user.role === UserRole.SUPER_ADMIN ||
+      (!write && (user.role === UserRole.AUDITOR || user.role === UserRole.QC_INSPECTOR));
     if (!managerBranch && !canReadAll) {
       throw new ForbiddenException('Tài khoản không có quyền thực hiện nghiệp vụ nhập/xuất kho');
     }

@@ -14,8 +14,14 @@ import {
 } from './dto/stock-movements.dto';
 import { StockMovementsService } from './stock-movements.service';
 
-const READERS = [UserRole.MANAGER_HN, UserRole.MANAGER_HCM, UserRole.AUDITOR];
-const WRITERS = [UserRole.MANAGER_HN, UserRole.MANAGER_HCM];
+const READERS = [
+  UserRole.SUPER_ADMIN,
+  UserRole.MANAGER_HN,
+  UserRole.MANAGER_HCM,
+  UserRole.AUDITOR,
+  UserRole.QC_INSPECTOR,
+];
+const WRITERS = [UserRole.SUPER_ADMIN, UserRole.MANAGER_HN, UserRole.MANAGER_HCM];
 
 @ApiTags('Goods receipts — A5')
 @ApiBearerAuth()
