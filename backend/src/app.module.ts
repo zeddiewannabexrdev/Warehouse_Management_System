@@ -10,6 +10,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { BranchesModule } from './modules/branches/branches.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { StockMovementsModule } from './modules/stock-movements/stock-movements.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
     BranchesModule,
     DashboardModule,
     InventoryModule,
+    StockMovementsModule,
   ],
 })
 export class AppModule {}

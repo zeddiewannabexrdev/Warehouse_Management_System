@@ -425,6 +425,20 @@ dbInstance.inventory_stocks.createIndex({ warehouse_branch: 1, material_code: 1 
 dbInstance.goods_receipts.createIndex({ warehouse_branch: 1, receipt_code: 1 });
 dbInstance.goods_issues.createIndex({ warehouse_branch: 1, issue_code: 1 });
 
+// A5/A6: uniqueness follows the shard-key prefix; existing data is never deleted.
+dbInstance.goods_receipts.createIndex(
+  { warehouse_branch: 1, receipt_code: 1 },
+  { unique: true, name: "uq_receipt_branch_code" }
+);
+dbInstance.goods_issues.createIndex(
+  { warehouse_branch: 1, issue_code: 1 },
+  { unique: true, name: "uq_issue_branch_code" }
+);
+dbInstance.material_audit_logs.createIndex(
+  { log_code: 1 },
+  { unique: true, name: "uq_audit_log_code" }
+);
+
 // Chỉ mục Multikey & Compound tối ưu hóa tìm kiếm đơn hàng và cấp phát
 dbInstance.goods_receipts.createIndex({ "items.material_code": 1 });
 dbInstance.goods_issues.createIndex({ project_id: 1, issue_date: -1 });
