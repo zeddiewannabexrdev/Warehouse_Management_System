@@ -13,6 +13,7 @@ import { MaterialsModule } from './modules/materials/materials.module';
 import { WarehousesModule } from './modules/warehouses/warehouses.module';
 import { ProcurementModule } from './modules/procurement/procurement.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { StockMovementsModule } from './modules/stock-movements/stock-movements.module';
 import { StockTransfersModule } from './modules/stock-transfers/stock-transfers.module';
 import { StocktakesModule } from './modules/stocktakes/stocktakes.module';
 import { ReportsModule } from './modules/reports/reports.module';
@@ -36,6 +37,7 @@ import { ClusterDemoModule } from './modules/cluster-demo/cluster-demo.module';
     WarehousesModule,
     ProcurementModule,
     InventoryModule,
+    StockMovementsModule,
     StockTransfersModule,
     StocktakesModule,
     ReportsModule,
