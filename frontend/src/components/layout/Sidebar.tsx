@@ -115,7 +115,7 @@ export const Sidebar: React.FC = () => {
           icon: Server,
         },
         {
-          name: 'Phân tích Định tuyến',
+          name: 'Định tuyến & Semi-Join',
           path: '/query-analyzer',
           icon: Cpu,
         },

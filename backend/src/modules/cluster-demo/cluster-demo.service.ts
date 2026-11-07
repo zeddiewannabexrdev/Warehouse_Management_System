@@ -3,6 +3,7 @@ import { DatabaseService } from '../../database/database.service';
 import { QueryExplainDto } from './dto/query-explain.dto';
 import { SimulateTransactionDto } from './dto/simulate-transaction.dto';
 import { ZoneInsertDto } from './dto/zone-insert.dto';
+import { SemiJoinAnalyzeDto } from './dto/semi-join-analyze.dto';
 import { ObjectId } from 'mongodb';
 
 export interface TopologyNode {
@@ -950,6 +951,189 @@ export class ClusterDemoService {
       message: `Đã cập nhật chu kỳ lưu trữ TTL Index thành công sang ${days} ngày (${expireAfterSeconds} giây)`,
       expireAfterSeconds,
       expireDays: days,
+    };
+  }
+
+  async analyzeSemiJoin(dto: SemiJoinAnalyzeDto) {
+    const branch = dto.targetBranch || 'HCM';
+    const minQty = dto.minQuantity || 0;
+    const keyword = dto.keyword?.trim() || '';
+
+    const matCol = this.databaseService.getCollection('materials');
+    const stockCol = this.databaseService.getCollection('inventory_stocks');
+
+    const filterS: any = {};
+    if (branch !== 'ALL') {
+      filterS.warehouse_branch = branch;
+    }
+    if (minQty > 0) {
+      filterS.quantity = { $gte: minQty };
+    }
+
+    const t0 = Date.now();
+    // 1. Fetch stocks in partition S
+    const stockRecords = await stockCol.find(filterS).toArray();
+
+    // Distinct join keys: material_code
+    const distinctKeys = Array.from(new Set(stockRecords.map((s: any) => s.material_code).filter(Boolean)));
+
+    // Filter R (materials) with keys
+    const filterR: any = { material_code: { $in: distinctKeys } };
+    if (keyword) {
+      filterR.$or = [
+        { material_code: { $regex: keyword, $options: 'i' } },
+        { material_name: { $regex: keyword, $options: 'i' } },
+      ];
+    }
+    const matchingMaterials = await matCol.find(filterR).limit(25).toArray();
+    const totalMaterialsInDb = await matCol.countDocuments();
+    const realExecutionElapsed = Math.max(1, Date.now() - t0);
+
+    // Calculate actual payload byte sizes
+    // Full Join ships entire stock documents (all columns)
+    const rawStockJson = JSON.stringify(stockRecords);
+    const actualStockBytes = Buffer.byteLength(rawStockJson, 'utf8');
+
+    // Semi-Join ships only the projected array of keys
+    const rawKeysJson = JSON.stringify(distinctKeys);
+    const actualKeysBytes = Buffer.byteLength(rawKeysJson, 'utf8');
+
+    // Average doc sizes
+    const averageStockDocSize = stockRecords.length > 0 ? Math.round(actualStockBytes / stockRecords.length) : 380;
+    const averageKeySize = distinctKeys.length > 0 ? Math.round(actualKeysBytes / distinctKeys.length) : 18;
+
+    // Batch scale for educational visualization
+    const batchScale = Math.max(stockRecords.length, 25);
+    const fullShipTransferredBytes = Math.max(actualStockBytes, batchScale * averageStockDocSize);
+    const semiJoinTransferredBytes = Math.max(actualKeysBytes, distinctKeys.length * averageKeySize);
+
+    const savedBytes = Math.max(0, fullShipTransferredBytes - semiJoinTransferredBytes);
+    const reductionPercent = fullShipTransferredBytes > 0
+      ? Number(((savedBytes / fullShipTransferredBytes) * 100).toFixed(1))
+      : 89.5;
+
+    // Latency models:
+    // Full Join: WAN transfer of heavy payload + coordinator hash join
+    const fullJoinLatency = Number((realExecutionElapsed * 1.8 + (fullShipTransferredBytes / 1024) * 0.12 + 12.5).toFixed(2));
+    // Semi-Join: Remote index scan + transmission of compact key array + host index lookup
+    const semiJoinLatency = Number((realExecutionElapsed * 0.6 + (semiJoinTransferredBytes / 1024) * 0.05 + 2.1).toFixed(2));
+
+    const targetShardName = branch === 'HCM'
+      ? 'Shard 2 - TP.HCM (vattu-shard2:27020 / ZONE_HCM)'
+      : branch === 'HN'
+      ? 'Shard 1 - Hà Nội (vattu-shard1:27018 / ZONE_HN)'
+      : 'Toàn bộ Shard (Shard 1:27018 + Shard 2:27020)';
+
+    const formatBytes = (bytes: number) => {
+      if (bytes < 1024) return `${bytes} B`;
+      return `${(bytes / 1024).toFixed(2)} KB`;
+    };
+
+    // Construct sample joined result
+    const stockMap = new Map<string, any>();
+    stockRecords.forEach((s: any) => {
+      stockMap.set(s.material_code, s);
+    });
+
+    const sampleResults = matchingMaterials.map((m: any) => {
+      const stock = stockMap.get(m.material_code);
+      return {
+        material_code: m.material_code,
+        material_name: m.material_name,
+        category_name: m.category_code || m.category_name || 'Vật tư cơ bản',
+        unit: m.unit || 'Cái',
+        standard_price: m.standard_price || 0,
+        branch_stock_quantity: stock ? stock.quantity : 0,
+        warehouse_branch: stock?.warehouse_branch || branch,
+      };
+    });
+
+    return {
+      queryContext: {
+        relationR: {
+          name: 'materials (Danh mục Vật tư gốc)',
+          location: 'Host Coordinator / Master Catalog',
+          totalRecords: totalMaterialsInDb,
+          averageDocSizeBytes: 520,
+        },
+        relationS: {
+          name: 'inventory_stocks (Tồn kho Phân tán)',
+          location: targetShardName,
+          filterApplied: filterS,
+          matchedRecords: stockRecords.length,
+          averageDocSizeBytes: averageStockDocSize,
+        },
+        joinKey: 'material_code',
+        targetBranch: branch,
+      },
+      fullJoinPlan: {
+        strategyName: 'Full-Ship Distributed Join (R ⨝ S)',
+        totalBytesTransferred: fullShipTransferredBytes,
+        formattedBytesTransferred: formatBytes(fullShipTransferredBytes),
+        networkRoundTrips: 1,
+        executionTimeMillis: fullJoinLatency,
+        docsShipped: stockRecords.length,
+        steps: [
+          {
+            stepNumber: 1,
+            node: 'Coordinator (Mongos/API)',
+            action: `Gửi lệnh truy vấn findAll(${JSON.stringify(filterS)}) sang ${targetShardName}`,
+            dataVolume: '< 1 KB (Request)',
+          },
+          {
+            stepNumber: 2,
+            node: targetShardName,
+            action: 'Quét toàn bộ bản ghi tồn kho và đóng gói tất cả các cột thuộc tính (12+ fields) gửi qua mạng',
+            dataVolume: formatBytes(fullShipTransferredBytes),
+          },
+          {
+            stepNumber: 3,
+            node: 'Coordinator (Mongos/API)',
+            action: 'Nhận payload lớn từ mạng, nạp vào bộ nhớ RAM và thực hiện Hash Join với bảng materials',
+            dataVolume: 'Join In-Memory',
+          },
+        ],
+        bottleneck: 'Nghẽn băng thông mạng WAN/LAN do truyền nhiều trường dữ liệu thừa không cần thiết (redundant attributes).',
+      },
+      semiJoinPlan: {
+        strategyName: 'Semi-Join Distributed Optimization (R ⋉ S)',
+        totalBytesTransferred: semiJoinTransferredBytes,
+        formattedBytesTransferred: formatBytes(semiJoinTransferredBytes),
+        networkRoundTrips: 1,
+        executionTimeMillis: semiJoinLatency,
+        keysShipped: distinctKeys.length,
+        reductionPercentage: reductionPercent,
+        bandwidthSavedBytes: savedBytes,
+        formattedBandwidthSaved: formatBytes(savedBytes),
+        steps: [
+          {
+            stepNumber: 1,
+            node: targetShardName,
+            action: 'Chiếu khóa cục bộ π[material_code](σ[filter](S)) bằng Index Scan để trích xuất mảng khóa duy nhất',
+            dataVolume: 'Xử lý cục bộ tại Shard',
+          },
+          {
+            stepNumber: 2,
+            node: `${targetShardName} ➔ Coordinator`,
+            action: 'Chỉ truyền duy nhất mảng các khóa material_code rút gọn qua mạng (loại bỏ 100% cột thừa)',
+            dataVolume: formatBytes(semiJoinTransferredBytes),
+          },
+          {
+            stepNumber: 3,
+            node: 'Coordinator (Mongos/API)',
+            action: 'Lọc quan hệ R: db.materials.find({ material_code: { $in: keys } }) bằng IXSCAN với độ phức tạp O(1)',
+            dataVolume: `${sampleResults.length} records kết quả`,
+          },
+        ],
+        theoreticalFormula: 'R ⋉_A S = π_R(R ⨝_A S) = R ⨝_A (π_A(S))',
+        efficiencyGain: `Tiết kiệm ${reductionPercent}% băng thông mạng và giảm thời gian trễ thực thi ~${(fullJoinLatency / Math.max(0.1, semiJoinLatency)).toFixed(1)}x`,
+      },
+      comparisonMetrics: {
+        bandwidthReductionRatio: `${reductionPercent}%`,
+        speedupRatio: `${(fullJoinLatency / Math.max(0.1, semiJoinLatency)).toFixed(1)}x`,
+        docsShippedRatio: `${distinctKeys.length} keys vs ${stockRecords.length} full docs`,
+      },
+      sampleResults,
     };
   }
 }

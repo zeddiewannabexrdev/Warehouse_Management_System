@@ -6,6 +6,7 @@ import { ClusterDemoService } from './cluster-demo.service';
 import { QueryExplainDto } from './dto/query-explain.dto';
 import { SimulateTransactionDto } from './dto/simulate-transaction.dto';
 import { ZoneInsertDto } from './dto/zone-insert.dto';
+import { SemiJoinAnalyzeDto } from './dto/semi-join-analyze.dto';
 
 @ApiTags('Cluster Demo Suite')
 @ApiBearerAuth()
@@ -30,6 +31,12 @@ export class ClusterDemoController {
   @ApiOperation({ summary: 'B11: Phân tích định tuyến truy vấn Targeted vs Scatter-Gather và Explain plan' })
   async explainQuery(@Body() dto: QueryExplainDto) {
     return this.clusterDemoService.explainQuery(dto);
+  }
+
+  @Post('semi-join/analyze')
+  @ApiOperation({ summary: 'B11.2: Tối ưu hóa truy vấn phân tán bằng thuật toán Semi-Join (R ⋉ S vs Full Join)' })
+  async analyzeSemiJoin(@Body() dto: SemiJoinAnalyzeDto) {
+    return this.clusterDemoService.analyzeSemiJoin(dto);
   }
 
   @Post('transaction/simulate')
