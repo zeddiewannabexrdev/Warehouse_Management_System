@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { api } from '../../lib/api';
 import { StockRow } from '../../types/inventory.types';
-import { inputClass, labelClass, primaryButton, secondaryButton } from './InventoryUi';
+import { Modal } from '../../components/ui/Modal';
+import { Button } from '../../components/ui/Button';
+import { inputClass, labelClass } from './InventoryUi';
 
 export const ThresholdModal: React.FC<{
   stock: StockRow;
@@ -29,29 +30,63 @@ export const ThresholdModal: React.FC<{
     }
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px] p-4">
-      <form role="dialog" aria-modal="true" aria-label="Sửa ngưỡng tồn kho" onSubmit={submit} className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 space-y-4">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">Sửa ngưỡng tồn kho</h2>
-          <p className="mt-1 text-sm text-slate-500">{stock.material_name}</p>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Sửa ngưỡng tồn kho"
+      description={`${stock.material_code} · ${stock.material_name} (Chi nhánh ${stock.warehouse_branch})`}
+      size="sm"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>
+            Hủy
+          </Button>
+          <Button variant="primary" onClick={submit} loading={saving}>
+            Lưu thay đổi
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={submit} className="space-y-3.5">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass} htmlFor="min-threshold">Ngưỡng tối thiểu</label>
-            <input id="min-threshold" className={inputClass} type="number" min="0" step="any" required value={min} onChange={(e) => setMin(e.target.value)} />
+            <label className={labelClass} htmlFor="min-threshold">
+              Ngưỡng tối thiểu ({stock.unit})
+            </label>
+            <input
+              id="min-threshold"
+              className={inputClass}
+              type="number"
+              min="0"
+              step="any"
+              required
+              value={min}
+              onChange={(e) => setMin(e.target.value)}
+            />
           </div>
           <div>
-            <label className={labelClass} htmlFor="max-threshold">Ngưỡng tối đa</label>
-            <input id="max-threshold" className={inputClass} type="number" min="0" step="any" required value={max} onChange={(e) => setMax(e.target.value)} />
+            <label className={labelClass} htmlFor="max-threshold">
+              Ngưỡng tối đa ({stock.unit})
+            </label>
+            <input
+              id="max-threshold"
+              className={inputClass}
+              type="number"
+              min="0"
+              step="any"
+              required
+              value={max}
+              onChange={(e) => setMax(e.target.value)}
+            />
           </div>
         </div>
-        <div className="flex justify-end gap-2.5 pt-1">
-          <button type="button" onClick={onClose} className={secondaryButton}>Hủy</button>
-          <button type="submit" disabled={saving} className={primaryButton}>Lưu thay đổi</button>
+
+        <div className="p-2.5 bg-slate-50 border border-slate-200 rounded text-[11px] font-mono text-slate-600">
+          <div>Tồn hiện tại: <strong className="text-slate-900">{stock.quantity} {stock.unit}</strong></div>
+          <div className="text-slate-500 mt-0.5">Khả dụng: {stock.available_quantity} · Đã phân bổ: {stock.allocated_quantity}</div>
         </div>
       </form>
-    </div>,
-    document.body,
+    </Modal>
   );
 };

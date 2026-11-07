@@ -9,19 +9,16 @@ import {
 } from '../../types/stock-movement.types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { StatusBadge } from '../../components/common/StatusBadge';
+import { MetricStrip } from '../../components/common/MetricStrip';
 import { formatNumber, formatDate } from '../../lib/utils';
 import {
   Plus,
   RefreshCw,
   Search,
-  Eye,
   X,
-  Server,
-  Building2,
   CheckCircle2,
   AlertCircle,
   ArrowUpRight,
-  ShieldCheck,
 } from 'lucide-react';
 
 export const GoodsIssuesPage: React.FC = () => {
@@ -212,106 +209,32 @@ export const GoodsIssuesPage: React.FC = () => {
   const totalPages = data ? Math.ceil(data.total / limit) || 1 : 1;
 
   return (
-    <div className="space-y-6 font-sans">
-      {/* Header Banner */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 text-[10px] font-mono font-bold rounded-md border bg-blue-50 text-blue-800 border-blue-200">
-                MODULE 07 · GOODS ISSUES
-              </span>
-              <span className="text-xs text-slate-500 font-medium">
-                Vùng sharding: <strong>{selectedBranch === 'ALL' ? 'Toàn quốc (Multi-Shard)' : `ZONE_${selectedBranch}`}</strong>
-              </span>
-            </div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Quản Lý Phiếu Xuất Kho (Goods Issues)
-            </h1>
-            <p className="text-xs text-slate-500 mt-1 max-w-3xl">
-              Cấp phát vật tư phục vụ thi công công trình, áp dụng kiểm soát điều kiện tồn kho an toàn ($gte) và cập nhật số dư Shard nguyên tử.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-center">
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors shadow-2xs"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
-              Làm mới
-            </button>
-
-            {canWrite && (
-              <button
-                onClick={handleOpenCreateModal}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
-              >
-                <Plus className="w-4 h-4" />
-                Tạo phiếu xuất
-              </button>
-            )}
-          </div>
+    <div className="space-y-3 font-sans">
+      {/* 1. Lean Top Bar Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-200">
+        <div className="flex items-center gap-2.5">
+          <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
+            MODULE 07
+          </span>
+          <h1 className="text-base font-semibold text-slate-900 tracking-tight">
+            Quản Lý Phiếu Xuất Kho (Goods Issues)
+          </h1>
+          <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+            &#123; warehouse_branch: 1, issue_code: 1 &#125;
+          </span>
         </div>
 
-        {/* 4 Summary KPI Cards */}
-        <div className="pt-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-[11px] font-medium text-slate-500">Tổng phiếu xuất</span>
-              <ArrowUpRight className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="text-lg font-bold text-slate-900 font-mono">
-              {formatNumber(data?.total || 0)}
-            </div>
-            <div className="text-[10px] text-slate-400 font-mono">Ghi nhận trong DB</div>
-          </div>
-
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-[11px] font-medium text-slate-500">Chi nhánh thao tác</span>
-              <Building2 className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="text-lg font-bold text-blue-800 font-mono">
-              {selectedBranch === 'ALL' ? 'Tất cả chi nhánh' : `Chi nhánh ${selectedBranch}`}
-            </div>
-            <div className="text-[10px] text-blue-600 font-mono">
-              {selectedBranch === 'HN' ? 'Shard 1 (27018)' : selectedBranch === 'HCM' ? 'Shard 2 (27020)' : 'Router (27017)'}
-            </div>
-          </div>
-
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-[11px] font-medium text-slate-500">Bảo vệ âm tồn</span>
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div className="text-sm font-bold text-emerald-700 font-mono truncate">
-              Atomic $gte Guard
-            </div>
-            <div className="text-[10px] text-emerald-600 font-mono">
-              Chống xuất âm / Race Conditions
-            </div>
-          </div>
-
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <div className="flex items-center justify-between text-slate-400 mb-1">
-              <span className="text-[11px] font-medium text-slate-500">Truy vết Audit</span>
-              <Server className="w-4 h-4 text-slate-400" />
-            </div>
-            <div className="text-sm font-bold text-slate-800 font-mono">
-              material_audit_logs
-            </div>
-            <div className="text-[10px] text-slate-400 font-mono">
-              TTL Index 90 ngày tự động
-            </div>
-          </div>
+        <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
+          <span className="text-slate-500">Vùng Sharding:</span>
+          <strong className="text-slate-800">
+            {selectedBranch === 'ALL' ? 'Toàn quốc (Multi-Shard Router: 27017)' : `ZONE_${selectedBranch} (${selectedBranch === 'HN' ? 'Port 27018' : 'Port 27020'})`}
+          </strong>
         </div>
       </div>
 
       {/* Notifications */}
       {errorMsg && (
-        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 flex items-center justify-between">
+        <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-md text-xs text-rose-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
             <span>{errorMsg}</span>
@@ -323,7 +246,7 @@ export const GoodsIssuesPage: React.FC = () => {
       )}
 
       {successMsg && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center justify-between">
+        <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-md text-xs text-emerald-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
             <span>{successMsg}</span>
@@ -334,91 +257,110 @@ export const GoodsIssuesPage: React.FC = () => {
         </div>
       )}
 
-      {/* Filter Toolbar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 text-xs">
-          {/* Branch filter */}
-          <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">Chi nhánh (Branch)</label>
-            <select
-              value={selectedBranch}
+      {/* 2. Slim Metric Strip (Replaces 4 bulky KPI cards) */}
+      <MetricStrip
+        items={[
+          {
+            label: 'Tổng phiếu xuất',
+            value: formatNumber(data?.total || 0),
+            subText: 'Ghi nhận trong DB',
+            status: 'neutral',
+          },
+          {
+            label: 'Chi nhánh thao tác',
+            value: selectedBranch === 'ALL' ? 'Toàn quốc' : `Chi nhánh ${selectedBranch}`,
+            subText: selectedBranch === 'HN' ? 'Shard 1 (27018)' : selectedBranch === 'HCM' ? 'Shard 2 (27020)' : 'Router (27017)',
+            status: 'info',
+          },
+          {
+            label: 'Bảo vệ âm tồn',
+            value: 'Atomic $gte Guard',
+            subText: 'Chống âm kho / Race conditions',
+            status: 'success',
+          },
+          {
+            label: 'Truy vết Audit',
+            value: 'material_audit_logs',
+            subText: 'TTL Index 90 ngày tự động',
+            status: 'neutral',
+          },
+        ]}
+      />
+
+      {/* 3. Unified Single-Row Toolbar (Filters + Actions) */}
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-white border border-slate-200 rounded-md text-xs">
+        {/* Left: Filters */}
+        <div className="flex flex-wrap items-center gap-2 flex-1">
+          {/* Branch Filter */}
+          <select
+            value={selectedBranch}
+            onChange={(e) => {
+              setSelectedBranch(e.target.value);
+              setPage(1);
+            }}
+            disabled={isManager}
+            className={`px-2 py-1 border rounded text-xs font-medium cursor-pointer focus:outline-none ${
+              isManager ? 'bg-slate-100 cursor-not-allowed text-slate-500 border-slate-200' : 'bg-white border-slate-200 text-slate-700'
+            }`}
+          >
+            {!isManager && <option value="ALL">Toàn quốc (Tất cả Shards)</option>}
+            <option value="HN">Hà Nội (Shard 1)</option>
+            <option value="HCM">TP.HCM (Shard 2)</option>
+            <option value="DN">Đà Nẵng</option>
+          </select>
+
+          {/* Warehouse Filter */}
+          <select
+            value={selectedWarehouse}
+            onChange={(e) => {
+              setSelectedWarehouse(e.target.value);
+              setPage(1);
+            }}
+            className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700 text-xs font-medium cursor-pointer focus:outline-none max-w-[160px] truncate"
+          >
+            <option value="">Tất cả các kho</option>
+            {options.warehouses.map((wh) => (
+              <option key={wh.warehouse_code} value={wh.warehouse_code}>
+                {wh.warehouse_code} - {wh.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Material Filter */}
+          <select
+            value={selectedMaterial}
+            onChange={(e) => {
+              setSelectedMaterial(e.target.value);
+              setPage(1);
+            }}
+            className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700 text-xs font-medium cursor-pointer focus:outline-none max-w-[160px] truncate"
+          >
+            <option value="">Tất cả vật tư</option>
+            {options.materials.map((m) => (
+              <option key={m.material_code} value={m.material_code}>
+                {m.material_code} - {m.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Search Purpose */}
+          <div className="relative min-w-[160px]">
+            <input
+              type="text"
+              placeholder="Tìm công trình / mục đích..."
+              value={purposeKeyword}
               onChange={(e) => {
-                setSelectedBranch(e.target.value);
+                setPurposeKeyword(e.target.value);
                 setPage(1);
               }}
-              disabled={isManager}
-              className={`w-full px-2.5 py-1.5 border rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-600 ${
-                isManager ? 'bg-slate-100 cursor-not-allowed text-slate-500' : 'border-slate-200'
-              }`}
-            >
-              {!isManager && <option value="ALL">Toàn quốc (Tất cả Shard)</option>}
-              <option value="HN">Miền Bắc - Hà Nội (Shard 1)</option>
-              <option value="HCM">Miền Nam - TP.HCM (Shard 2)</option>
-              <option value="DN">Miền Trung - Đà Nẵng</option>
-            </select>
+              className="w-full pl-7 pr-2 py-1 border border-slate-200 rounded bg-white text-slate-700 text-xs focus:outline-none placeholder:text-slate-400"
+            />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2" />
           </div>
 
-          {/* Warehouse filter */}
-          <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">Kho xuất hàng</label>
-            <select
-              value={selectedWarehouse}
-              onChange={(e) => {
-                setSelectedWarehouse(e.target.value);
-                setPage(1);
-              }}
-              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="">Tất cả các kho</option>
-              {options.warehouses.map((wh) => (
-                <option key={wh.warehouse_code} value={wh.warehouse_code}>
-                  {wh.warehouse_code} - {wh.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Material filter */}
-          <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">Vật tư</label>
-            <select
-              value={selectedMaterial}
-              onChange={(e) => {
-                setSelectedMaterial(e.target.value);
-                setPage(1);
-              }}
-              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="">Tất cả vật tư</option>
-              {options.materials.map((m) => (
-                <option key={m.material_code} value={m.material_code}>
-                  {m.material_code} - {m.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Purpose keyword search */}
-          <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">Mục đích cấp phát</label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Tìm công trình..."
-                value={purposeKeyword}
-                onChange={(e) => {
-                  setPurposeKeyword(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full pl-7 pr-2.5 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
-              />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2" />
-            </div>
-          </div>
-
-          {/* Date range from */}
-          <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">Từ ngày</label>
+          {/* Date range */}
+          <div className="flex items-center gap-1 text-[11px] font-mono text-slate-500">
+            <span>Từ:</span>
             <input
               type="date"
               value={fromDate}
@@ -426,13 +368,9 @@ export const GoodsIssuesPage: React.FC = () => {
                 setFromDate(e.target.value);
                 setPage(1);
               }}
-              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
+              className="px-1.5 py-1 border border-slate-200 rounded bg-white text-slate-700 text-xs focus:outline-none"
             />
-          </div>
-
-          {/* Date range to */}
-          <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">Đến ngày</label>
+            <span>Đến:</span>
             <input
               type="date"
               value={toDate}
@@ -440,25 +378,47 @@ export const GoodsIssuesPage: React.FC = () => {
                 setToDate(e.target.value);
                 setPage(1);
               }}
-              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
+              className="px-1.5 py-1 border border-slate-200 rounded bg-white text-slate-700 text-xs focus:outline-none"
             />
           </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="p-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded transition-colors cursor-pointer"
+            title="Làm mới danh sách"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
+          </button>
+
+          {canWrite && (
+            <button
+              onClick={handleOpenCreateModal}
+              className="inline-flex items-center gap-1 px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded transition-colors cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tạo phiếu xuất</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* Main Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div className="px-3 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-slate-900">
+            <h2 className="text-xs font-semibold text-slate-900">
               Danh Sách Phiếu Xuất Kho Cấp Phát
             </h2>
-            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-mono">
+            <span className="text-[10px] bg-slate-200/70 text-slate-600 px-1.5 py-0.2 rounded font-mono">
               {data?.total || 0} bản ghi
             </span>
           </div>
 
-          <div className="text-xs text-slate-400 font-mono">
+          <div className="text-[11px] text-slate-400 font-mono">
             Collection: goods_issues
           </div>
         </div>
@@ -468,19 +428,19 @@ export const GoodsIssuesPage: React.FC = () => {
             <LoadingSpinner label="Đang tải danh sách phiếu xuất kho từ MongoDB Cluster..." />
           </div>
         ) : data?.items && data.items.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium">
-                  <th className="py-3 px-4 font-mono">Mã phiếu xuất</th>
-                  <th className="py-3 px-3">Chi nhánh</th>
-                  <th className="py-3 px-3">Kho xuất</th>
-                  <th className="py-3 px-3">Ngày xuất</th>
-                  <th className="py-3 px-3">Người xuất</th>
-                  <th className="py-3 px-3">Vật tư & Sản lượng</th>
-                  <th className="py-3 px-3">Mục đích cấp phát</th>
-                  <th className="py-3 px-3 text-center">Trạng thái</th>
-                  <th className="py-3 px-4 text-right">Thao tác</th>
+          <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+            <table className="data-table">
+              <thead className="sticky top-0 bg-slate-50 z-10">
+                <tr>
+                  <th className="w-32 font-mono">Mã phiếu xuất</th>
+                  <th className="w-24">Chi nhánh</th>
+                  <th className="w-28">Kho xuất</th>
+                  <th className="w-28">Ngày xuất</th>
+                  <th>Người xuất</th>
+                  <th>Vật tư & Sản lượng</th>
+                  <th>Mục đích cấp phát</th>
+                  <th className="w-24 text-center">Trạng thái</th>
+                  <th className="w-20 text-right pr-3">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -529,12 +489,11 @@ export const GoodsIssuesPage: React.FC = () => {
                           }
                         />
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="text-right pr-3">
                         <button
                           onClick={() => setViewIssue(issue)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded font-medium transition-colors"
+                          className="px-2 py-0.5 text-[11px] font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded transition-colors cursor-pointer"
                         >
-                          <Eye className="w-3.5 h-3.5" />
                           Chi tiết
                         </button>
                       </td>
