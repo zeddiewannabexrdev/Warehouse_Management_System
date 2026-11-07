@@ -27,14 +27,25 @@ export default {
           950: '#020617',
         }
       },
+      borderRadius: {
+        none: '0px',
+        sm: '4px',
+        DEFAULT: '6px',
+        md: '6px',
+        lg: '8px',
+        xl: '8px',
+        '2xl': '8px',
+        full: '9999px',
+      },
       fontFamily: {
         sans: [
-          'Arial',
-          'Helvetica Neue',
-          'Helvetica',
+          'Inter',
+          'system-ui',
+          '-apple-system',
           'sans-serif'
         ],
         mono: [
+          'JetBrains Mono',
           'Consolas',
           'Courier New',
           'monospace'

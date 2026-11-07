@@ -4,11 +4,15 @@
 
 @layer base {
   * {
-    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
   }
   body {
     @apply bg-[#f8fafc] text-slate-900 antialiased;
-    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+  }
+  code, kbd, samp, pre, .font-mono {
+    font-family: "JetBrains Mono", Consolas, "Courier New", monospace !important;
+    font-feature-settings: "tnum" 1;
   }
 }
 
