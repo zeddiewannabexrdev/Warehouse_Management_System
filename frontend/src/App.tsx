@@ -10,9 +10,9 @@ import { ProcurementPage } from './pages/procurement/ProcurementPage';
 import { InventoryPage } from './pages/inventory/InventoryPage';
 import { GoodsReceiptsPage } from './pages/goods-receipts/GoodsReceiptsPage';
 import { GoodsIssuesPage } from './pages/goods-issues/GoodsIssuesPage';
-import { ModulePlaceholderPage } from './pages/placeholders/ModulePlaceholderPage';
 import { UsersManagementPage } from './pages/users/UsersManagementPage';
 import { BranchesConfigPage } from './pages/branches/BranchesConfigPage';
+import { SettingsPage } from './pages/settings/SettingsPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { StockTransfersPage } from './pages/stock-transfers/StockTransfersPage';
 import { StocktakesPage } from './pages/stocktakes/StocktakesPage';
@@ -87,7 +87,7 @@ export const App: React.FC = () => {
             {/* Administration & Multi-Branch RBAC Foundation */}
             <Route path="/users" element={<UsersManagementPage />} />
             <Route path="/branches" element={<BranchesConfigPage />} />
-            <Route path="/settings" element={<ModulePlaceholderPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
 
           {/* Fallback */}

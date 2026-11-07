@@ -58,6 +58,7 @@ dist/
 build/
 .npm/
 .yarn/
+.impeccable/
 
 # File tạm và sao lưu (Temporary & Backup Files)
 *.tmp
