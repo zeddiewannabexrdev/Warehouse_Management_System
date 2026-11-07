@@ -177,14 +177,14 @@ export const NotificationDropdown: React.FC = () => {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg relative transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20"
+        className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded flex items-center justify-center relative transition-colors border border-transparent hover:border-slate-200"
         title="Thông báo hệ thống"
         aria-label="Thông báo hệ thống"
         aria-expanded={isOpen}
       >
-        <Bell className="w-4 h-4" />
+        <Bell className="w-3.5 h-3.5 stroke-[1.5]" />
         {unreadCount > 0 && (
-          <span className="min-w-4 h-4 px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full absolute -top-0.5 -right-0.5 flex items-center justify-center ring-2 ring-white">
+          <span className="min-w-3.5 h-3.5 px-0.5 bg-rose-500 text-white text-[9px] font-mono font-bold rounded-full absolute -top-0.5 -right-0.5 flex items-center justify-center ring-2 ring-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -192,7 +192,7 @@ export const NotificationDropdown: React.FC = () => {
 
       {/* Popover Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden text-xs">
+        <div className="absolute right-0 mt-1.5 w-80 sm:w-96 bg-white rounded-md shadow-xs border border-slate-200 z-50 overflow-hidden text-xs">
           {/* Header */}
           <div className="p-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
             <div className="flex items-center gap-2">

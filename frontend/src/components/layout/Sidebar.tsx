@@ -164,25 +164,25 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-[#0e1726] text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 select-none">
-      <div className="h-14 px-5 flex items-center gap-3 border-b border-slate-800 bg-[#0a111c]">
-        <div className="w-8 h-8 rounded bg-brand-600 flex items-center justify-center text-white font-bold text-sm shadow-inner">
-          <Database className="w-4 h-4 text-white" />
+    <aside className="w-60 bg-[#0e1726] text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 select-none">
+      <div className="h-12 px-4 flex items-center gap-2.5 border-b border-slate-800 bg-[#0a111c]">
+        <div className="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-2xs">
+          <Database className="w-3.5 h-3.5 stroke-[1.5] text-white" />
         </div>
         <div className="flex flex-col">
-          <span className="font-bold text-xs tracking-wider text-white uppercase">
+          <span className="font-bold text-[11px] tracking-wider text-white uppercase leading-tight">
             DISTRIBUTED WMS
           </span>
-          <span className="text-[10px] text-slate-400 font-mono">
+          <span className="text-[9px] text-slate-400 font-mono leading-none mt-0.5">
             MongoDB Sharded Cluster
           </span>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-700">
+      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4 scrollbar-thin scrollbar-thumb-slate-700">
         {menuGroups.map((group) => (
           <div key={group.groupName}>
-            <div className="px-3 mb-2 text-[10px] font-semibold text-slate-400 tracking-wider font-mono">
+            <div className="px-2 mb-1 text-[9px] font-semibold text-slate-400 tracking-wider font-mono uppercase">
               {group.groupName}
             </div>
             <div className="space-y-0.5">
@@ -191,22 +191,24 @@ export const Sidebar: React.FC = () => {
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center justify-between px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    `group flex items-center justify-between px-2 py-1.5 rounded-md text-[11px] font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-600 text-white font-medium shadow-2xs'
+                        ? 'bg-blue-600 text-white font-semibold shadow-2xs'
                         : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                     }`
                   }
                 >
-                  <div className="flex items-center gap-2.5 truncate">
-                    <item.icon className="w-4 h-4 shrink-0 opacity-80" />
+                  <div className="flex items-center gap-2 truncate">
+                    <item.icon className="w-3.5 h-3.5 shrink-0 stroke-[1.5] text-slate-400 group-hover:text-slate-200" />
                     <span className="truncate">{item.name}</span>
                   </div>
                   {item.isSharded && (
                     <span
-                      title="Phân mảnh ngang (Sharded Collection)"
-                      className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"
-                    />
+                      title="Phân mảnh ngang (Sharded Collection theo chi nhánh)"
+                      className="px-1 py-0.2 text-[8px] font-mono font-semibold rounded bg-amber-400/10 text-amber-300 border border-amber-400/25 shrink-0 leading-tight tracking-tight"
+                    >
+                      SHARD
+                    </span>
                   )}
                 </NavLink>
               ))}
@@ -215,12 +217,12 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      <div className="p-3 border-t border-slate-800/80 bg-[#0a111c] text-[11px] text-slate-400 flex items-center justify-between font-mono">
+      <div className="h-8 px-3 border-t border-slate-800/80 bg-[#0a111c] text-[10px] text-slate-400 flex items-center justify-between font-mono">
         <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           Router: 27017
         </span>
-        <span className="text-[10px] text-slate-400">v1.0</span>
+        <span className="text-[9px] text-slate-400">CLUSTER</span>
       </div>
     </aside>
   );
