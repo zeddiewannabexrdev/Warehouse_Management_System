@@ -25,25 +25,37 @@ export class StockMovementsService implements OnModuleInit {
 
   async onModuleInit() {
     await this.db.ensureConnected();
-    // MongoDB 6 supports a named unique index alongside an existing non-unique index.
-    await this.db
-      .getCollection('goods_receipts')
-      .createIndex(
-        { warehouse_branch: 1, receipt_code: 1 },
-        { unique: true, name: 'uq_receipt_branch_code' },
-      );
-    await this.db
-      .getCollection('goods_issues')
-      .createIndex(
-        { warehouse_branch: 1, issue_code: 1 },
-        { unique: true, name: 'uq_issue_branch_code' },
-      );
-    await this.db
-      .getCollection('material_audit_logs')
-      .createIndex({ log_code: 1 }, { unique: true, name: 'uq_audit_log_code' });
-    await this.db
-      .getCollection('inventory_stocks')
-      .createIndex({ warehouse_branch: 1, material_code: 1 }, { unique: true });
+    try {
+      await this.db
+        .getCollection('goods_receipts')
+        .createIndex(
+          { warehouse_branch: 1, receipt_code: 1 },
+          { unique: true, name: 'uq_receipt_branch_code' },
+        );
+    } catch (err: any) {
+      // Ignored if index exists
+    }
+
+    try {
+      await this.db
+        .getCollection('goods_issues')
+        .createIndex(
+          { warehouse_branch: 1, issue_code: 1 },
+          { unique: true, name: 'uq_issue_branch_code' },
+        );
+    } catch (err: any) {}
+
+    try {
+      await this.db
+        .getCollection('material_audit_logs')
+        .createIndex({ log_code: 1 }, { unique: true, name: 'uq_audit_log_code' });
+    } catch (err: any) {}
+
+    try {
+      await this.db
+        .getCollection('inventory_stocks')
+        .createIndex({ warehouse_branch: 1, material_code: 1 }, { unique: true });
+    } catch (err: any) {}
   }
 
   private scope(user: AuthenticatedUser, requested?: string, write = false): string {
