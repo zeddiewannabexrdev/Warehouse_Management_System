@@ -71,6 +71,8 @@ build/
 *.docx
 *.doc
 *.txt
+*.pdf
 scripts/generate_*.py
 scripts/*.bak
+bao_cao/
 
