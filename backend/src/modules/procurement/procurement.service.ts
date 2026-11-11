@@ -383,9 +383,12 @@ export class ProcurementService {
         // 5. Ghi vết kiểm toán vào material_audit_logs (Sharded Log)
         const auditLogDoc = {
           _id: new ObjectId(),
+          log_code: `AUD-PO-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
           action: 'CREATE_PURCHASE_ORDER',
+          actor: userEmail,
           collection_name: 'purchase_orders',
           document_id: poDoc._id.toString(),
+          warehouse_branch: branchCode,
           branch: branchCode,
           operator_email: userEmail,
           details: {
@@ -395,6 +398,7 @@ export class ProcurementService {
             total_amount: totalAmount,
             items_count: processedItems.length,
           },
+          timestamp: new Date(),
           created_at: new Date(),
         };
 
@@ -490,9 +494,12 @@ export class ProcurementService {
         await db.collection('material_audit_logs').insertOne(
           {
             _id: new ObjectId(),
+            log_code: `AUD-PO-STATUS-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
             action: 'UPDATE_PO_STATUS',
+            actor: userEmail,
             collection_name: 'purchase_orders',
             document_id: poId,
+            warehouse_branch: po.warehouse_branch,
             branch: po.warehouse_branch,
             operator_email: userEmail,
             details: {
@@ -501,6 +508,7 @@ export class ProcurementService {
               new_status: dto.status,
               notes: dto.notes,
             },
+            timestamp: new Date(),
             created_at: new Date(),
           },
           sessionOpt,

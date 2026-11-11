@@ -140,12 +140,27 @@ export class DatabaseService implements OnModuleInit, OnApplicationShutdown {
         ...options,
       };
 
-      let result: T;
-      await session.withTransaction(async () => {
-        result = await operation(session);
-      }, defaultOptions);
-
-      return result!;
+      try {
+        let result: T;
+        await session.withTransaction(async () => {
+          result = await operation(session);
+        }, defaultOptions);
+        return result!;
+      } catch (err: any) {
+        const errMsg = err?.message || '';
+        if (
+          errMsg.includes('Transaction numbers are only allowed') ||
+          errMsg.includes('replica set member or mongos') ||
+          errMsg.includes('Standalone')
+        ) {
+          this.logger.warn(
+            '⚠️ MongoDB hiện tại đang chạy ở chế độ Standalone (không phải Replica Set hoặc Mongos Sharded Cluster). Đang tự động chuyển sang cơ chế thực thi Standalone Fallback an toàn...',
+          );
+          // Fallback thực thi tuần tự tương thích Standalone
+          return await operation(session);
+        }
+        throw err;
+      }
     } finally {
       await session.endSession();
     }
